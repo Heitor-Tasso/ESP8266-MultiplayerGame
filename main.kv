@@ -1,0 +1,70 @@
+<MoveLayout@FloatLayout>:
+	size_hint: None, None
+	size: 0, 0
+
+<BtnRect@ButtonBehavior+Label>:
+	size_hint: None, None
+	size: '110dp', '50dp'
+	on_state:
+		self.background_color = \
+		self.down_color if self.state == 'down' else \
+		self.normal_color
+	down_color: [1, 0, 0, 1]
+	normal_color: [1, 1, 1, 1]
+	on_kv_post:
+		self.background_color = self.normal_color
+	background_color: [1, 1, 1, 1]
+	canvas.before:
+		Color:
+			rgba: self.background_color
+		Rectangle:
+			pos:self.pos
+			size:self.size
+
+<BtnCircle@ButtonBehavior+Label>:
+	size_hint: None, None
+	size: '80dp', '80dp'
+	on_state:
+		self.background_color = \
+		self.down_color if self.state == 'down' else \
+		self.normal_color
+	down_color: [1, 0, 0, 1]
+	normal_color: [1, 1, 1, 1]
+	on_kv_post:
+		self.background_color = self.normal_color
+	background_color: [1, 1, 1, 1]
+	canvas.before:
+		Color:
+			rgba: self.background_color
+		Ellipse:
+			pos:self.pos
+			size:self.size
+
+<GamePad>:
+	orientation: 'vertical'
+	BoxLayout:
+		size_hint_y: None
+		height: '80dp'
+		id: top
+		MoveLayout:
+		    BtnRect:
+			    y: top.center_y-(self.height/2)
+				x : top.x+(self.width*0.5)
+		Widget:
+		MoveLayout:
+			BtnRect:
+				y: top.center_y-(self.height/2)
+				x : top.x+top.width-(self.width*1.5)
+	Button:
+		text: 'Body'
+	BoxLayout:
+		id: bottom
+		MoveLayout:
+			BtnCircle:
+				y: bottom.center_y-(self.height/2)
+				x : bottom.x+bottom.width-(self.width*1.5)
+		Widget:
+		MoveLayout:
+			BtnCircle:
+				y: bottom.center_y-(self.height/2)
+				x : bottom.x+(self.width*0.5)
