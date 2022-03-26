@@ -1,0 +1,49 @@
+
+<CustomButton@ButtonBehavior+Label>:
+	size_hint: None, None
+	on_state:
+		self.background_color = \
+		self.down_color if self.state == 'down' else \
+		self.normal_color
+	down_color: [1, 0, 0, 1]
+	normal_color: [1, 1, 1, 1]
+	on_kv_post:
+		self.background_color = self.normal_color
+	background_color: [1, 1, 1, 1]
+
+<ButtonRectangle@CustomButton>:
+	size: '110dp', '50dp'
+	canvas.before:
+		Color:
+			rgba: self.background_color
+		Rectangle:
+			pos:self.pos
+			size:self.size
+
+<ButtonEllipse@CustomButton>:
+	size: '80dp', '80dp'
+	canvas.before:
+		Color:
+			rgba: self.background_color
+		Ellipse:
+			pos:self.pos
+			size:self.size
+
+<GamePad>:
+	ButtonRectangle:
+		x: root.x+(self.width*0.5)
+		y: root.y+root.height-(self.height*1.5)
+
+	ButtonRectangle:
+		x: root.x+root.width-(self.width*1.5)
+		y: root.y+root.height-(self.height*1.5)
+
+	ButtonEllipse:
+		id: control_left
+		x: root.x+(self.width*0.5)
+		y: root.y+self.height
+
+	ButtonEllipse:
+		id: control_right
+		x: root.x+root.width-(self.width*1.5)
+		y: root.y+self.height

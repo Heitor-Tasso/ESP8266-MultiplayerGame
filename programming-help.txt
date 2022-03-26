@@ -1,0 +1,21 @@
+------------ Enviar ------------
+ Informações de Ações:
+   - Ataque (poderes)
+   - Movimento r, l, u, d -> (right, left, up, down)
+
+------------ Receber ------------
+ Informações do personagem
+   - Vida
+   - Mana
+
+------------ Padrões Técnicos ------------
+
+ ==== Dentro do .ino ====
+  - Vida == int n (que diminui até chegar a 0)
+  - Mana == int n (que diminui até chegar a 0, mas aumenta com o tempo)
+  - Ataque == String t (vazio quando nn tem nenhum ataque)
+
+ ==== Dentro do GamePad ====
+  ~~~~ [ Modo de Envio ] ~~~~
+   - Ataque -> "atk:espd"
+   - Movimento -> "mov:x,y" (x == x_ellipse, y == y_ellipse)
