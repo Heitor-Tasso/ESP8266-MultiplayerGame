@@ -2,66 +2,69 @@
 
 <!---Esses são exemplos. Veja https://shields.io para outras pessoas ou para personalizar este conjunto de escudos. Você pode querer incluir dependências, status do projeto e informações de licença aqui--->
 
-![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/iuricode/README-template?style=for-the-badge)
-![Bitbucket open issues](https://img.shields.io/bitbucket/issues/iuricode/README-template?style=for-the-badge)
-![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/iuricode/README-template?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/SrGambiarra/ESP8266-MultiplayerGame?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/SrGambiarra/ESP8266-MultiplayerGame?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/SrGambiarra/ESP8266-MultiplayerGame?style=for-the-badge)
+![Bitbucket open issues](https://img.shields.io/bitbucket/issues/SrGambiarra/ESP8266-MultiplayerGame?style=for-the-badge)
+![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/SrGambiarra/ESP8266-MultiplayerGame?style=for-the-badge)
 
 <img src="exemplo-image.png" alt="exemplo imagem">
 
-> Linha adicional de texto informativo sobre o que o projeto faz. Sua introdução deve ter cerca de 2 ou 3 linhas. Não exagere, as pessoas não vão ler.
+> Utilizamos o ESP8266 para fazer um game online de forma local. Podendo jogar com até 5 pessoas simultaneamente utlizando um aparelho celular ou desktop, sem restrições.
 
 ### Ajustes e melhorias
 
 O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
 
-- [x] Tarefa 1
-- [x] Tarefa 2
-- [x] Tarefa 3
-- [ ] Tarefa 4
-- [ ] Tarefa 5
+- [x] Enviar e receber informações do ESP8266
+- [x] Ter conexões simultâneas e fazer se comunicarem
+- [x] Desenhar todo o jogo em um Display ISP conectado ao ESP8266
+- [ ] Adicionar a opção de poder utlizar o Wifi residencial
+- [ ] Fazer com que o jogo também "apareça" no GamePad
 
 ## 💻 Pré-requisitos
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 <!---Estes são apenas requisitos de exemplo. Adicionar, duplicar ou remover conforme necessário--->
-* Você instalou a versão mais recente de `<linguagem / dependência / requeridos>`
-* Você tem uma máquina `<Windows / Linux / Mac>`. Indique qual sistema operacional é compatível / não compatível.
-* Você leu `<guia / link / documentação_relacionada_ao_projeto>`.
+* Você instalou o `Python>=3.9.7`.
+* Você tem uma máquina `Windows / Linux / Mac / Android`.
 
-## 🚀 Instalando <nome_do_projeto>
+## 🚀 Instalando <ESP8266-MultiplayerGame>
 
-Para instalar o <nome_do_projeto>, siga estas etapas:
+Para instalar o <ESP8266-MultiplayerGame>, siga estas etapas:
 
-Linux e macOS:
-```
-<comando_de_instalação>
-```
+Instruções:
 
-Windows:
-```
-<comando_de_instalação>
-```
+ - Abrir o aquivo Arduino/Arduino.ino na IDE Arduino.
+ - Configurar para poder utlizar o ESP8266 [!link](https://www.robocore.net/tutoriais/programando-o-esp8266-pela-arduino-ide).
+ - Instalar o driver do ESP8266 [!link](https://www.blogdarobotica.com/2020/05/26/instalando-driver-serial-para-nodemcu-com-chip-ch340/#:~:text=Caso%20a%20placa%20NODEMCU%20ESP8266,NODEMCU%20ESP8266%20n%C3%A3o%20foi%20reconhecida.&text=Ap%C3%B3s%20a%20conclus%C3%A3o%20do%20download,instala%C3%A7%C3%A3o%2C%20conforme%20a%20Figura%205.).
+  - Carregar o programa no ESP8266 [!link](https://seurobo.com.br/como-enviar-o-programa-para-o-arduino-uno-mega-ou-outros/).
+  - Compilar o GamePad para a sua máquina [!link](https://kivy.org/doc/stable/guide/packaging.html) ou instalar utilizando os links mais abaixo.
+  - Agora é só ligar o ESP9266 e entrar no GamePad para se conectar.
 
-## ☕ Usando <nome_do_projeto>
+Downloads GamePad:
+ - `Windows`:link1
+ - `Mac`:link2
+ - `Android`:link3
 
-Para usar <nome_do_projeto>, siga estas etapas:
+## ☕ Jogando <ESP8266-MultiplayerGame>
 
-```
-<exemplo_de_uso>
-```
+Para usar <GamePad>, siga estas etapas:
 
-Adicione comandos de execução e exemplos que você acha que os usuários acharão úteis. Fornece uma referência de opções para pontos de bônus!
+ - Se conecte à rede Wifi do ESP8266.
+ - Inicialize o App e entre em configurações.
+ - Aperte em Host e escolha quantos jogadores vão ser.
+ - Agora é só apertar em iniciar e jogar com os seus amigos.
 
-## 📫 Contribuindo para <nome_do_projeto>
+
+## 📫 Contribuindo para <ESP8266-MultiplayerGame>
 <!---Se o seu README for longo ou se você tiver algum processo ou etapas específicas que deseja que os contribuidores sigam, considere a criação de um arquivo CONTRIBUTING.md separado--->
-Para contribuir com <nome_do_projeto>, siga estas etapas:
+Para contribuir com <ESP8266-MultiplayerGame>, siga estas etapas:
 
 1. Bifurque este repositório.
-2. Crie um branch: `git checkout -b <nome_branch>`.
+2. Crie um branch: `git checkout -b dev`.
 3. Faça suas alterações e confirme-as: `git commit -m '<mensagem_commit>'`
-4. Envie para o branch original: `git push origin <nome_do_projeto> / <local>`
+4. Envie para o branch: `git push origin dev`
 5. Crie a solicitação de pull.
 
 Como alternativa, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
@@ -74,9 +77,9 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
   <tr>
     <td align="center">
       <a href="#">
-        <img src="https://avatars3.githubusercontent.com/u/31936044" width="100px;" alt="Foto do Iuri Silva no GitHub"/><br>
+        <img src="https://avatars.githubusercontent.com/u/87236158?v=4" width="100px;" alt="Foto do SrGambiarra no GitHub"/><br>
         <sub>
-          <b>Iuri Silva</b>
+          <b>Heitor Tasso</b>
         </sub>
       </a>
     </td>
@@ -100,12 +103,8 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
 </table>
 
 
-## 😄 Seja um dos contribuidores<br>
-
-Quer fazer parte desse projeto? Clique [AQUI](CONTRIBUTING.md) e leia como contribuir.
-
 ## 📝 Licença
 
 Esse projeto está sob licença. Veja o arquivo [LICENÇA](LICENSE.md) para mais detalhes.
 
-[⬆ Voltar ao topo](#nome-do-projeto)<br>
+[⬆ Voltar ao topo](#ESP8266-MultiplayerGame)<br>
