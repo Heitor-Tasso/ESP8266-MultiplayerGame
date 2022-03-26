@@ -51,7 +51,7 @@ Downloads GamePad:
 
 Para usar GamePad, siga estas etapas:
 
- - Se conecte à rede Wifi do ESP8266.
+ - Conecte-se à rede Wifi do ESP8266.
  - Inicialize o App e entre em configurações.
  - Aperte em Host e escolha quantos jogadores vão ser.
  - Agora é só apertar em iniciar e jogar com os seus amigos.
