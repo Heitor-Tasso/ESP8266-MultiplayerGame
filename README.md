@@ -26,10 +26,10 @@ O projeto ainda está em desenvolvimento e as próximas atualizações serão vo
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 <!---Estes são apenas requisitos de exemplo. Adicionar, duplicar ou remover conforme necessário--->
-* Você instalou o `Python>=3.9.7`.
+* Você instalou o `Python >= 3.9.7`.
 * Você tem uma máquina `Windows / Linux / Mac / Android`.
 
-## 🚀 Instalando ESP8266-MultiplayerGame
+## 🚀 Instalando o ESP8266-MultiplayerGame
 
 Para instalar o ESP8266-MultiplayerGame, siga estas etapas:
 
@@ -47,9 +47,9 @@ Downloads GamePad:
  - `Mac` -> [Download GamePad]()
  - `Android` -> [Download GamePad]()
 
-## ☕ Jogando ESP8266-MultiplayerGame
+## ☕ Jogando com o ESP8266-MultiplayerGame
 
-Para usar GamePad, siga estas etapas:
+Para usar o GamePad, siga estas etapas:
 
  - Conecte-se à rede Wifi do ESP8266.
  - Inicialize o App e entre em configurações.
@@ -57,9 +57,9 @@ Para usar GamePad, siga estas etapas:
  - Agora é só apertar em iniciar e jogar com os seus amigos.
 
 
-## 📫 Contribuindo para ESP8266-MultiplayerGame
+## 📫 Contribuindo para o ESP8266-MultiplayerGame
 <!---Se o seu README for longo ou se você tiver algum processo ou etapas específicas que deseja que os contribuidores sigam, considere a criação de um arquivo CONTRIBUTING.md separado--->
-Para contribuir com ESP8266-MultiplayerGame, siga estas etapas:
+Para contribuir com o ESP8266-MultiplayerGame, siga estas etapas:
 
 1. Bifurque este repositório.
 2. Crie um branch: `git checkout -b dev`.
