@@ -19,3 +19,11 @@
   ~~~~ [ Modo de Envio ] ~~~~
    - Ataque -> "atk:espd"
    - Movimento -> "mov:x,y" (x == x_ellipse, y == y_ellipse)
+	[x=-1~-0.4 y=-1~-0.4 down-left]
+	[x=1~0.4 y=-1~-0.4 down-right]
+
+	[x=-1~-0.4 y=1~0.4 up-left]
+	[x=1~0.4 y=1~0.4 up-right]
+
+	[x=-1~-0.4 y=>-0.4<0.4 left]
+	[x=1~0.4 y=>-0.4<0.4 right]

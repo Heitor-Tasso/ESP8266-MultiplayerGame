@@ -39,26 +39,12 @@ void setup() {
 
 void get_connection(WiFiClient client) {
   // Wait until the client sends some data
-  Serial.println("Esperando resposta");
+  Serial.println("Esperando resposta.");
   String req = client.readStringUntil('\n');
   print2("Resposta: ", req);
   //req = req.substring(req.indexOf("/") + 1, req.indexOf("HTTP") - 1);
-  client.flush();
 
-  // Match the request
-
-  if (req.indexOf("D") != -1)
-  {
-    client.print("ESP8266 recebeu seu valor D.\n");
-  }
-  else {
-    client.print("Invalid Request!\n");
-    client.flush();
-    client.stop();
-    return;
-  }
-
-  client.print("HTTP/1.1 200 OK\n");
+  client.print("EPS8266 recebeu sua informação.\n");
   client.flush();
   client.stop();
 }

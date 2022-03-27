@@ -1,4 +1,4 @@
-#: import Joystick kivy.garden.joystick.Joystick
+#: import Joystick joystick.joystick.Joystick
 #: import image utils.image
 
 <CustomButton@ButtonBehavior+Image>:
@@ -27,6 +27,13 @@
 			size:self.size
 			pos:self.pos
 
+	Label:
+		id: fps_lbl
+		size_hint: None, None
+		size: '100dp', '50dp'
+		pos: root.x+(root.width*0.5)-(self.width*0.5), root.y+(root.height*0.5)-(self.height*0.5)
+		color: [1, 1, 1, 1]
+
 	ButtonRectangle:
 		source:image('pad_left')
 		x: root.x+(self.width*0.5)
@@ -42,6 +49,7 @@
 		id: control_left
 		x: root.x+root.width-(self.width*1.5)
 		y: root.y+self.height
+		on_press: root.do_ataque()
 
 	Joystick:
 		id: joystick
