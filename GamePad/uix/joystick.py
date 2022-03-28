@@ -1,10 +1,12 @@
 from kivy.uix.widget import Widget
+from .behaviors.button import FloatBehavior
 from kivy.properties import (
     BooleanProperty, NumericProperty,
     ListProperty, ReferenceListProperty)
 
 from kivy.clock import Clock
 from kivy.lang.builder import Builder
+from kivy.app import App
 import math
 
 OUTLINE_ZERO = 0.00000000001
@@ -69,7 +71,7 @@ class JoystickPad(Widget):
     _line_width = NumericProperty(1)
 
 
-class Joystick(Widget):
+class Joystick(FloatBehavior, Widget):
     '''The joystick base is comprised of an outer circle & an inner circle.
        The joystick pad is another circle,
            which the user can move within the base.
@@ -297,12 +299,20 @@ class Joystick(Widget):
     '''####################################################################'''
 
     def on_touch_down(self, touch):
+        root = App.get_running_app().root
+        if root.move_layout:
+            return super(Joystick, self).on_touch_down(touch)
+
         if self.collide_point(*touch.pos):
             touch.ud['joystick'] = self
             return self.move_pad(touch, from_touch_down=True)
         return super(Joystick, self).on_touch_down(touch)
 
     def on_touch_move(self, touch):
+        root = App.get_running_app().root
+        if root.move_layout:
+            return super(Joystick, self).on_touch_move(touch)
+            
         if self._touch_is_active(touch):
             if not self.can_update:
                 return True
@@ -311,6 +321,11 @@ class Joystick(Widget):
         return super(Joystick, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
+        root = App.get_running_app().root
+        if root.move_layout:
+            self.center_pad()
+            return super(Joystick, self).on_touch_up(touch)
+        
         if self._touch_is_active(touch) and not(self.sticky):
             self.center_pad()
             return True

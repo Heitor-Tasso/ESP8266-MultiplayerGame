@@ -18,3 +18,6 @@ def icon(name, ext='png'):
 
 def image(name, ext='png'):
     return get_path(f'assets/images/{name}.{ext}')
+
+def config_path(name, ext='json'):
+    return get_path(f'config/{name}.{ext}')

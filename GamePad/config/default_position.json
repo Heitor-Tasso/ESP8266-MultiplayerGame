@@ -1,0 +1,22 @@
+{
+    "pad_left": {
+        "hint_x": 0.06,
+        "hint_y": 0.85
+    },
+    "options": {
+        "hint_x": 0.49,
+        "hint_y": 0.87
+    },
+    "pad_right": {
+        "hint_x": 0.8,
+        "hint_y": 0.86
+    },
+    "joystick": {
+        "hint_x": 0.01,
+        "hint_y": 0.03
+    },
+    "control_left": {
+        "hint_x": 0.74,
+        "hint_y": 0.05
+    }
+}

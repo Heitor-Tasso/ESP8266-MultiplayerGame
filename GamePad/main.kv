@@ -1,72 +1,75 @@
 #: import Joystick uix.joystick.Joystick
+#: import FloatButtonIcon uix.icons.FloatButtonIcon
+#: import ToggleButtonIcon uix.icons.ToggleButtonIcon
+#: import AnchorIcon uix.icons.AnchorIcon
+
 #: import image utils.image
 
-<CustomButton>:
-	size_hint: None, None
-	on_state:
-		self.color = \
-		self.down_color if self.state == 'down' else \
-		self.normal_color
-	down_color: [1, 0, 0, 1]
-	normal_color: [1, 1, 1, 1]
-	on_kv_post:
-		self.color = self.normal_color
-	mipmap: True
-
-<ButtonRectangle@CustomButton>:
-	size: '100dp', '70dp'
-
-<ButtonEllipse@CustomButton>:
-	size: '100dp', '100dp'
-
 <GamePad>:
-	canvas.before:
-		Color:
-			rgba: [0, 0.3, 0.5, 1]
-		Rectangle:
-			size:self.size
-			pos:self.pos
+	BoxLayout:
+		orientation: 'vertical'
+		size_hint:None, None
+		size: root.size
+		canvas.before:
+			Color:
+				rgba: [0, 0.3, 0.5, 1]
+			Rectangle:
+				size:self.size
+				pos:self.pos
 
-	Label:
-		id: fps_lbl
-		size_hint: None, None
-		size: '100dp', '50dp'
-		pos: root.x+(root.width*0.5)-(self.width*0.5), root.y+(root.height*0.5)-(self.height*0.5)
-		color: [1, 1, 1, 1]
+		BoxLayout:
+			size_hint_y: None
+			height:'70dp'
+			Widget:
+			AnchorIcon:
+				ToggleButtonIcon:
+					icon_source:image('correct')
+					on_state: root.move_layout = True if self.state == 'down' else False
 
-	ButtonRectangle:
-		source:image('pad_left')
-		x: root.x+(self.width*0.5)
-		y: root.y+root.height-(self.height*1.5)
+		FloatLayout:
+			id:content_pad
+			Label:
+				id: fps_lbl
+				size_hint: None, None
+				size: '100dp', '50dp'
+				x: content_pad.x+(content_pad.width*0.5)-(self.width*0.5)
+				y:content_pad.y+(content_pad.height*0.5)-(self.height*0.5)
+				color: [1, 1, 1, 1]
 
-	ButtonRectangle:
-		source:image('pad_right')
-		x: root.x+root.width-(self.width*1.5)
-		y: root.y+root.height-(self.height*1.5)
+			FloatButtonIcon:
+				id:pad_left
+				icon_source:image('pad_left')
+				size: '100dp', '70dp'
 
-	ButtonEllipse:
-		source:image('attack')
-		id: control_left
-		x: root.x+root.width-(self.width*1.5)
-		y: root.y+self.height
-		on_press: root.do_ataque()
+			FloatButtonIcon:
+				id:options
+				icon_source:image('options')
+				size: '50dp', '50dp'
 
-	Joystick:
-		id: joystick
-		size_hint: None, None
-		size: '100dp', '100dp'
-		x: root.x+(self.width*0.5)
-		y: root.y+(self.height*0.7)
-		sticky: False
-		outer_size: 1
-		inner_size: 0.75
-		pad_size: 0.5
-		outer_line_width: 0.01
-		inner_line_width: 0.01
-		pad_line_width: 0.01
-		outer_background_color: (0.75, 0.75, 0.75, 0.3)
-		outer_line_color: (1, 1, 1, 0.6)
-		inner_background_color: (0.75, 0.75, 0.75, 0.1)
-		inner_line_color: (0.7,  0.7,  0.7,  0.4)
-		pad_background_color: (0.4,  0.4,  0.4,  1)
-		pad_line_color: (1, 1, 1, 0.3)
+			FloatButtonIcon:
+				id:pad_right
+				icon_source:image('pad_right')
+				size: '100dp', '70dp'
+
+			Joystick:
+				id: joystick
+				size_hint: None, None
+				size: '100dp', '100dp'
+				sticky: False
+				outer_size: 1
+				inner_size: 0.75
+				pad_size: 0.5
+				outer_line_width: 0.01
+				inner_line_width: 0.01
+				pad_line_width: 0.01
+				outer_background_color: (0.75, 0.75, 0.75, 0.3)
+				outer_line_color: (1, 1, 1, 0.6)
+				inner_background_color: (0.75, 0.75, 0.75, 0.1)
+				inner_line_color: (0.7,  0.7,  0.7,  0.4)
+				pad_background_color: (0.4,  0.4,  0.4,  1)
+				pad_line_color: (1, 1, 1, 0.3)
+
+			FloatButtonIcon:
+				id: control_left
+				icon_source:image('attack')
+				on_press: root.do_ataque()
