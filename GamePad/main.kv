@@ -1,7 +1,7 @@
-#: import Joystick joystick.joystick.Joystick
+#: import Joystick uix.joystick.Joystick
 #: import image utils.image
 
-<CustomButton@ButtonBehavior+Image>:
+<CustomButton>:
 	size_hint: None, None
 	on_state:
 		self.color = \
@@ -61,9 +61,9 @@
 		outer_size: 1
 		inner_size: 0.75
 		pad_size: 0.5
-		outer_line_width: dp(0.01)
-		inner_line_width: dp(0.01)
-		pad_line_width:   dp(0.01)
+		outer_line_width: 0.01
+		inner_line_width: 0.01
+		pad_line_width: 0.01
 		outer_background_color: (0.75, 0.75, 0.75, 0.3)
 		outer_line_color: (1, 1, 1, 0.6)
 		inner_background_color: (0.75, 0.75, 0.75, 0.1)

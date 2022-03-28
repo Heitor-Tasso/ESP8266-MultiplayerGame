@@ -4,10 +4,62 @@ from kivy.properties import (
     ListProperty, ReferenceListProperty)
 
 from kivy.clock import Clock
+from kivy.lang.builder import Builder
 import math
 
 OUTLINE_ZERO = 0.00000000001
 # replaces user's 0 value for outlines, avoids invalid width exception
+
+Builder.load_string("""
+
+<JoystickPad>:
+    id: pad
+    canvas:
+        ###  Background  ###
+        Color:
+            rgba: self._background_color
+        Ellipse:
+            pos: [(self.center_x-self._radius), (self.center_y-self._radius)]
+            size: (self._diameter, self._diameter)
+        ###  Border  ###
+        Color:
+            rgba: self._line_color
+        Line:
+            circle: [self.center_x, self.center_y, ((self._diameter - (self._line_width*2)) / 2)]
+            width: self._line_width
+
+
+<JoyStick>:
+    canvas:
+        ###  Outer Background  ###
+        Color:
+            rgba: self.outer_background_color
+        Ellipse:
+            pos: (self.center_x - self._outer_radius), (self.center_y - self._outer_radius)
+            size: (self._outer_diameter, self._outer_diameter)
+        ###  Outer Border  ###
+        Color:
+            rgba: self.outer_line_color
+        Line:
+            circle: [self.center_x, self.center_y, (self._outer_radius - (self._outer_line_width / 2))]
+            width: self._outer_line_width
+        ###  Inner Background  ###
+        Color:
+            rgba: self.inner_background_color
+        Ellipse:
+            pos: [(self.center_x - self._inner_radius), (self.center_y - self._inner_radius)]
+            size: (self._inner_diameter, self._inner_diameter)
+        ###  Inner Border  ###
+        Color:
+            rgba: self.inner_line_color
+        Line:
+            circle: (self.center_x, self.center_y, self._inner_radius)
+            width: self._inner_line_width
+    ###  Pad  ###
+    JoystickPad:
+        id: pad
+
+""", filename='joystick.kv')
 
 class JoystickPad(Widget):
     _diameter = NumericProperty(1)

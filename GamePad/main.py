@@ -4,6 +4,10 @@ from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.uix.floatlayout import FloatLayout
 
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.image import Image
+from uix.floatwidget import BaseFloat
+
 import socket
 from utils import get_path
 from functools import partial
@@ -15,9 +19,13 @@ port_esp = 80
 
 Builder.load_file(get_path('main.kv'))
 
+class CustomButton(BaseFloat, ButtonBehavior, Image):
+	pass
+
 class GamePad(FloatLayout):
 
 	can_move = True
+	move_layout = False
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -46,6 +54,7 @@ class GamePad(FloatLayout):
 		esp = self.connect_to_esp()
 		if esp is None:
 			print('Não foi conectar ao ESP8266!!')
+			self.can_move = True
 			return None
 
 		try:
@@ -65,16 +74,12 @@ class GamePad(FloatLayout):
 		th.start()
 
 	def update_coordinates(self, joystick, pad):
-		x = str(pad[0])[0:5]
-		y = str(pad[1])[0:5]
-		radians = str(joystick.radians)[0:5]
-		magnitude = str(joystick.magnitude)[0:5]
-		angle = str(joystick.angle)[0:5]
-		text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
-		# print(text.format(x, y, radians, magnitude, angle))
-		if self.can_move:
-			self.send_with_thread(f'mov:{x},{y}')
-			self.can_move = False
+		if not self.can_move:
+			return None
+		
+		x, y = tuple(map(lambda n: round(n, 2), pad))
+		self.send_with_thread(f'mov:{x},{y}')
+		self.can_move = False
 
 	def do_ataque(self, *args):
 		self.send_with_thread('atk:espd')
