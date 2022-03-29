@@ -1,6 +1,6 @@
 {
     "pad_left": {
-        "hint_x": 0.06,
+        "hint_x": 0.07,
         "hint_y": 0.85
     },
     "options": {
@@ -16,7 +16,7 @@
         "hint_y": 0.09
     },
     "control_left": {
-        "hint_x": 0.73,
-        "hint_y": 0.11
+        "hint_x": 0.24,
+        "hint_y": 0.09
     }
 }

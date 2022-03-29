@@ -9,6 +9,7 @@ from kivy.metrics import dp
 
 import socket
 import json
+
 from utils import get_path, config_path
 from functools import partial
 from threading import Thread
@@ -23,6 +24,8 @@ class GamePad(Screen):
 
 	can_move = True
 	move_layout = ObjectProperty(False)
+	username = ''
+	index_player = '-1'
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -35,7 +38,35 @@ class GamePad(Screen):
 		# receber os dados do joystick quando mudar de posição internamente
 		self.ids.joystick.bind(pad=self.update_coordinates)
 		Clock.schedule_interval(lambda *a: setattr(self.ids.fps_lbl, 'text', str(Clock.get_fps())), 0.1)
-	
+
+		self.username = input('Seu nome de usuario: ')
+		th = Thread(target=self.login_game)
+		th.start()
+
+	def login_game(self, *args):
+		sucessfull = True
+		esp = self.connect_to_esp()
+		if esp is None:
+			return False
+		try:
+			esp.send(f'{self.index_player}:np:{self.username}\n'.encode('utf-8'))
+		except (ConnectionAbortedError, socket.timeout, TimeoutError):
+			self.close_connection_esp(esp)
+			return False
+
+		msg = esp.recv(1024).decode('utf-8').strip("\n").split(":")
+		print(msg)
+		if len(msg) < 2:
+			sucessfull = False
+		elif msg[0] == "ERRO":
+			sucessfull = False
+		elif msg[0] == "index":
+			self.index_player = msg[1]
+		
+		self.close_connection_esp(esp)
+		return sucessfull
+		
+
 	def get_json(self, name, *args):
 		with open(config_path(name), 'r', encoding='utf-8') as file:
 			return json.load(file)
@@ -61,7 +92,8 @@ class GamePad(Screen):
 		esp.settimeout(2)
 		try:
 			esp.connect((gateway_esp, port_esp))
-		except (socket.timeout, TimeoutError):
+		except (socket.timeout, TimeoutError, OSError):
+			print('Não foi conectar ao ESP8266!!')
 			return None
 		return esp
 
@@ -71,12 +103,11 @@ class GamePad(Screen):
 	def send_informations(self, msg, *args):
 		esp = self.connect_to_esp()
 		if esp is None:
-			print('Não foi conectar ao ESP8266!!')
 			self.can_move = True
 			return None
 
 		try:
-			esp.send(f'{msg}\n'.encode('utf-8'))
+			esp.send(f'{self.index_player}:{msg}\n'.encode('utf-8'))
 			if msg.find('atk') != -1:
 				print('Atacou!!')
 			elif msg.find('mov') != -1:
