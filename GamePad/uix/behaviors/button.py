@@ -25,10 +25,14 @@ class FloatBehavior(object):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bind(pos=self.update_pos)
-        self.bind(size=self.update_pos)
         self.bind(hint_x=self.update_pos)
         self.bind(hint_y=self.update_pos)
+        Clock.schedule_once(self.binds)
+    
+    def binds(self, *args):
+        content_pad = App.get_running_app().root.ids.content_pad
+        content_pad.bind(pos=self.update_pos)
+        content_pad.bind(size=self.update_pos)
     
     def update_pos(self, *args):
         if not self.get_root_window():
@@ -63,7 +67,6 @@ class FloatBehavior(object):
     def on_touch_move(self, touch):
         root = App.get_running_app().root
         if root.move_layout and self.move_layout:
-            print('Movendo')
             self.clear_background()
             tx, ty = touch.pos
             content_pad = root.ids.content_pad

@@ -21,10 +21,9 @@ void setup() {
   IPAddress staticIP(192, 168, 4, 2); // IP Static 192.168.4.2
   IPAddress gateway(192, 168, 4, 1);// gateway Static 192.168.4.1
   IPAddress subnet(255, 255, 255, 0);// subnet Static 255.255.255.0
-
-  WiFi.mode(WIFI_AP_STA);// Modo Acess Point and
-  WiFi.softAP(ssid, password, 2, 0);
-  WiFi.begin(user_wifi, user_pass);
+  WiFi.mode(WIFI_AP_STA);// Modo ACESS POINT and 
+  WiFi.softAP(ssid, password, 2, 0); // WiFi ESP8266
+  WiFi.begin(user_wifi, user_pass); // WiFi Domestico
   WiFi.config(staticIP, gateway, subnet);
   server.begin();
 
@@ -33,7 +32,8 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\nServer started!");
+  Serial.println("");
+  Serial.println("Server started!");
   print_str(WiFi.softAPIP().toString(), "getway");
   print_str(WiFi.localIP().toString(), "ip");
 }
@@ -64,13 +64,10 @@ void remove_player(int index_player) {
 
 void get_connection(WiFiClient client) {
   // Wait until the client sends some data
-  Serial.println("Esperando resposta.");
   String req = client.readStringUntil('\n');
-  print_str(req, "req");
-
   String splited[3];
   split_string(req, ":", splited);
-  print_array_str(splited, "splited", LEN(splited));
+  print_array_str(splited, "splited", LEN(splited), false);
   
   if (!splited[0].equals("-1")) {
     int index_player = splited[0].toInt();
@@ -82,7 +79,11 @@ void get_connection(WiFiClient client) {
     if (!new_player(splited[2], client)){
       return;
     }
-    print_array_str(players, "players", LEN(players));
+    print_array_str(players, "players", LEN(players), false);
+  }
+  else if (splited[1].equals(String("exit"))) {
+    remove_player(splited[0].toInt());
+    print_array_str(players, "players", LEN(players), false);
   }
   else if (splited[1].equals(String("mov"))) {
     double coords_mov[2];
@@ -91,10 +92,8 @@ void get_connection(WiFiClient client) {
   }
   else if (splited[1].equals(String("atk"))) {
     String atk = splited[2];
-    Serial.println(atk);
+    print_str(atk, "atk");
   }
-
-  print_client("EPS8266 recebeu sua informação.", client);
   client.stop();
 }
 

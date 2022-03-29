@@ -8,7 +8,7 @@
         "hint_y": 0.88
     },
     "pad_right": {
-        "hint_x": 0.8,
+        "hint_x": 0.74,
         "hint_y": 0.86
     },
     "joystick": {
@@ -16,7 +16,7 @@
         "hint_y": 0.09
     },
     "control_left": {
-        "hint_x": 0.24,
-        "hint_y": 0.09
+        "hint_x": 0.76,
+        "hint_y": 0.06
     }
 }

@@ -71,5 +71,6 @@
 
 			FloatButtonIcon:
 				id: control_left
-				icon_source:image('attack')
+				state_sources:[image('attack'), image('attack-ab')]
 				on_press: root.do_ataque()
+				radius_effect: [self.width]

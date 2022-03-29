@@ -105,7 +105,10 @@ class ButtonIcon(EffectBehavior, ButtonBehavior, Image):
         Clock.schedule_once(self.set_color)
     
     def set_color(self, *args):
-        self.source = self.icon_source
+        if self.icon_source != '':
+            self.source = self.icon_source
+        elif len(self.state_sources) > 0:
+            self.source = self.state_sources[0]
         self.color_icon = self.icon_color
 
     def on_state(self, widget, state):
@@ -126,7 +129,9 @@ class ButtonIcon(EffectBehavior, ButtonBehavior, Image):
                 self.color_icon = self.pos_color
             return None
 
-        self.source = self.icon_source
+        if self.icon_source != '':
+            self.source = self.icon_source
+
         self.color_icon = self.icon_color
         if self.enter_pos:
             self.enter_pos = False

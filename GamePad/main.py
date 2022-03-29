@@ -65,7 +65,9 @@ class GamePad(Screen):
 		
 		self.close_connection_esp(esp)
 		return sucessfull
-		
+	
+	def exit_game(self, *args):
+		self.send_informations_with_thread('exit:save')
 
 	def get_json(self, name, *args):
 		with open(config_path(name), 'r', encoding='utf-8') as file:
@@ -174,6 +176,10 @@ class GamePad(Screen):
 class Program(App):
 	def build(self):
 		return GamePad()
+	
+	def on_stop(self):
+		self.root.exit_game()
+		return super().on_stop()
 
 if __name__ == '__main__':
 	Program().run()
