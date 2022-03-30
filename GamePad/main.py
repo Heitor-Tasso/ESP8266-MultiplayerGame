@@ -128,7 +128,8 @@ class GamePad(Screen):
 		if not self.can_move:
 			return None
 		x, y = tuple(map(lambda n: round(n, 2), pad))
-		self.send_informations_with_thread(f'mov:{x},{y}')
+		angle = round(joystick.angle)
+		self.send_informations_with_thread(f'mov:{x},{y},{angle}')
 		self.can_move = False
 
 	def do_ataque(self, *args):

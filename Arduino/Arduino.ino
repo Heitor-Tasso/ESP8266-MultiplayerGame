@@ -3,15 +3,18 @@
 #include "print.h"
 #include "tooltype.h"
 
+// esp8266 wifi config
 #define ssid "ESP8266 - Heitor"
 #define password "12345678"
 
+// local wifi config
 #define user_wifi "BC Telecom anderson"
 #define user_pass "m23m19v16v22h11h26"
 
 WiFiServer server(80);
 
-String players[5] = {"-1", "-1", "-1", "-1", "-1"};
+#define num_players 5
+String players[num_players] = {"-1", "-1", "-1", "-1", "-1"};
 int index_np = 0;
 
 void setup() {
@@ -39,8 +42,17 @@ void setup() {
 }
 
 int new_player(String player_name, WiFiClient client) {
+  /* add a new player and comunicate to start the game for him
+   
+   Args:
+     player_name (String): name of player to add in **players**
+     client (WiFiClient): connection to communicate with player
+   Return:
+     false if no player added or true if added
+  */
   while (!players[index_np].equals(String("-1"))) {
-    if (index_np == 4) {
+    if (index_np == num_players-1) {
+      // player can't be added
       print_client("ERRO:Quantidade máxima de players atingida!", client);
       client.stop();
       return 0;
@@ -49,13 +61,20 @@ int new_player(String player_name, WiFiClient client) {
     }
   }
   players[index_np] = player_name;
+  Serial.println("NEW PLAYER: "+player_name);
+  // to player know what him index
   print_client("index:"+String(index_np), client);
-  Serial.print("Novo Player -> ");
-  Serial.println(player_name);
   return 1;
 }
 
 void remove_player(int index_player) {
+  /* remove player and comunicate to stop game for him
+   
+   Args:
+     index_player (int): index of player to remove him of **players**
+   Return:
+     None
+  */
   players[index_player] = "-1";
   if (index_player < index_np) {
     index_np = index_player;
@@ -76,9 +95,9 @@ void get_connection(WiFiClient client) {
   }
 
   if (splited[1].equals(String("np"))) {
-    if (!new_player(splited[2], client)){
-      return;
-    }
+    // can't add this player
+    if (!new_player(splited[2], client)){ return; }
+    // successful added
     print_array_str(players, "players", LEN(players), false);
   }
   else if (splited[1].equals(String("exit"))) {
@@ -86,7 +105,7 @@ void get_connection(WiFiClient client) {
     print_array_str(players, "players", LEN(players), false);
   }
   else if (splited[1].equals(String("mov"))) {
-    double coords_mov[2];
+    double coords_mov[3]; // x, y, angle [ JOYSTICK ]
     split_string_to_double(String(splited[2]), ",", coords_mov);
     print_array_double(coords_mov, "coords_mov", LEN(coords_mov));
   }
