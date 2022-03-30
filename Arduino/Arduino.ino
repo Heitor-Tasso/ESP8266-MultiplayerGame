@@ -14,8 +14,23 @@
 WiFiServer server(80);
 
 #define num_players 5
+#define num_lifes 5
+#define player_width 70
+#define player_height 150
+
 String players[num_players] = {"-1", "-1", "-1", "-1", "-1"};
+int players_life[num_players] = {0, 0, 0, 0, 0};
+double players_pos[num_players][2] = {0, 0, 0, 0, 0};
 int index_np = 0;
+
+void start_local_wifi() {
+  WiFi.begin(user_wifi, user_pass); // WiFi Domestico
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -26,15 +41,9 @@ void setup() {
   IPAddress subnet(255, 255, 255, 0);// subnet Static 255.255.255.0
   WiFi.mode(WIFI_AP_STA);// Modo ACESS POINT and 
   WiFi.softAP(ssid, password, 2, 0); // WiFi ESP8266
-  WiFi.begin(user_wifi, user_pass); // WiFi Domestico
   WiFi.config(staticIP, gateway, subnet);
   server.begin();
-
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+  //start_local_wifi();
   Serial.println("");
   Serial.println("Server started!");
   print_str(WiFi.softAPIP().toString(), "getway");
@@ -61,6 +70,7 @@ int new_player(String player_name, WiFiClient client) {
     }
   }
   players[index_np] = player_name;
+  players_life[index_np] = num_lifes;
   Serial.println("NEW PLAYER: "+player_name);
   // to player know what him index
   print_client("index:"+String(index_np), client);
@@ -76,8 +86,31 @@ void remove_player(int index_player) {
      None
   */
   players[index_player] = "-1";
+  players_life[index_player] = 0;
   if (index_player < index_np) {
     index_np = index_player;
+  }
+}
+
+int collid_player(double pos[], double px, double py) {
+  if (px < pos[0]+player_width && px > pos[0] && py < pos[1]+player_height && py > pos[1]) {
+    return 1;
+  }
+  return 0;
+}
+
+void do_attack(int index_player, String atk) {
+  String player = players[index_player];
+  double px = players_pos[index_player][0];
+  double py = players_pos[index_player][1];
+  Serial.println(String("tiop do ataque: ")+atk);
+  
+  for (int i=0; i<num_players; i++) {
+    if (index_player != i) {
+      if (collid_player(players_pos[i], px, py)) {
+        Serial.println(player+String(" colidiu com o ")+players[i]);
+      }
+    }
   }
 }
 
@@ -105,13 +138,61 @@ void get_connection(WiFiClient client) {
     print_array_str(players, "players", LEN(players), false);
   }
   else if (splited[1].equals(String("mov"))) {
-    double coords_mov[3]; // x, y, angle [ JOYSTICK ]
-    split_string_to_double(String(splited[2]), ",", coords_mov);
-    print_array_double(coords_mov, "coords_mov", LEN(coords_mov));
+    double coords_move[3]; // x, y, angle [ JOYSTICK ]
+    split_string_to_double(String(splited[2]), ",", coords_move);
+    print_array_double(coords_move, "coords_mov", LEN(coords_move));
+    if (coords_move[0] > 0.4 && coords_move[1] > -0.4 && coords_move[1] < 0.4) {
+      Serial.println("movendo para direita");
+    }
+    else if (coords_move[0] < -0.4 && coords_move[1] > -0.4 && coords_move[1] < 0.4) {
+      Serial.println("movendo para esquerda");
+    }
+    else if (coords_move[1] > 0.4 && coords_move[0] > -0.4 && coords_move[0] < 0.4) {
+      Serial.println("movendo para cima");
+    }
+    else if (coords_move[1] < -0.4 && coords_move[0] > -0.4 && coords_move[0] < 0.4) {
+      Serial.println("movendo para baixo");
+    }
+    else if (coords_move[0] > 0.4 && coords_move[1] > 0.4) {
+      Serial.println("movendo para direita e cima");
+    }
+    else if (coords_move[0] > 0.4 && coords_move[1] < -0.4) {
+      Serial.println("movendo para direita e baixo");
+    }
+    else if (coords_move[0] < -0.4 && coords_move[1] > 0.4) {
+      Serial.println("movendo para esquerda e cima");
+    }
+    else if (coords_move[0] < -0.4 && coords_move[1] < -0.4) {
+      Serial.println("movendo para esquerda e baixo");
+    }
+
+    if (coords_move[2] == 0) {
+      Serial.println("movendo para direita angle");
+    }
+    else if (coords_move[2] == 180) {
+      Serial.println("movendo para esquerda angle");
+    }
+    else if (coords_move[2] == 90) {
+      Serial.println("movendo para cima angle");
+    }
+    else if (coords_move[2] == 270) {
+      Serial.println("movendo para baixo angle");
+    }
+    else if (coords_move[2] == 45) {
+      Serial.println("movendo para direita e cima angle");
+    }
+    else if (coords_move[2] == 315) {
+      Serial.println("movendo para direita e baixo angle");
+    }
+    else if (coords_move[2] == 135) {
+      Serial.println("movendo para esquerda e cima angle");
+    }
+    else if (coords_move[2] == 225) {
+      Serial.println("movendo para esquerda e baixo angle");
+    }
   }
   else if (splited[1].equals(String("atk"))) {
-    String atk = splited[2];
-    print_str(atk, "atk");
+    do_attack(splited[1], splited[2]);
   }
   client.stop();
 }
