@@ -119,11 +119,14 @@ class GamePad(Screen):
 			if msg.find('recv') != -1:
 				resp = esp.recv(1024).decode('utf-8').strip("\n").split(":")
 				if len(resp) > 1:
-					#print(resp)
 					if resp[0] == 'life':
 						if self.lifes != int(resp[1]):
 							self.lifes = int(resp[1])
 							print(resp)
+					elif resp[0] == 'gameover':
+						print("MORRI: ", resp)
+					else:
+						print(resp)
 
 			elif msg.find('atk') != -1:
 				print('Atacou!!')
