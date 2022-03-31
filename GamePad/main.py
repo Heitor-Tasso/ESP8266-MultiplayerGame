@@ -20,12 +20,14 @@ port_esp = 80
 
 Builder.load_file(get_path('main.kv'))
 
+
 class GamePad(Screen):
 
 	can_move = True
 	move_layout = ObjectProperty(False)
 	username = ''
 	index_player = '-1'
+	lifes = 0
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -39,7 +41,7 @@ class GamePad(Screen):
 		self.ids.joystick.bind(pad=self.update_coordinates)
 		Clock.schedule_interval(lambda *a: setattr(self.ids.fps_lbl, 'text', str(Clock.get_fps())), 0.1)
 
-		self.username = input('Seu nome de usuario: ')
+		self.username = "Heitor"
 		th = Thread(target=self.login_game)
 		th.start()
 
@@ -50,18 +52,22 @@ class GamePad(Screen):
 			return False
 		try:
 			esp.send(f'{self.index_player}:np:{self.username}\n'.encode('utf-8'))
+			Clock.schedule_interval(lambda *a: self.send_informations_with_thread('recv'), 0.1)
+			print('Iniciou!!')
 		except (ConnectionAbortedError, socket.timeout, TimeoutError):
 			self.close_connection_esp(esp)
 			return False
 
-		msg = esp.recv(1024).decode('utf-8').strip("\n").split(":")
-		print(msg)
-		if len(msg) < 2:
+		values = esp.recv(1024).decode('utf-8').strip("\n").split(":")
+		print(values)
+		if len(values) < 2:
 			sucessfull = False
-		elif msg[0] == "ERRO":
+		elif values[0] == "erro":
 			sucessfull = False
-		elif msg[0] == "index":
-			self.index_player = msg[1]
+		elif values[0] == "start":
+			# values[1::] == INDEX, LIFES
+			self.index_player = values[1]
+			self.lifes = int(values[2])
 		
 		self.close_connection_esp(esp)
 		return sucessfull
@@ -110,7 +116,16 @@ class GamePad(Screen):
 
 		try:
 			esp.send(f'{self.index_player}:{msg}\n'.encode('utf-8'))
-			if msg.find('atk') != -1:
+			if msg.find('recv') != -1:
+				resp = esp.recv(1024).decode('utf-8').strip("\n").split(":")
+				if len(resp) > 1:
+					#print(resp)
+					if resp[0] == 'life':
+						if self.lifes != int(resp[1]):
+							self.lifes = int(resp[1])
+							print(resp)
+
+			elif msg.find('atk') != -1:
 				print('Atacou!!')
 			elif msg.find('mov') != -1:
 				print('Moveu!!')
