@@ -298,9 +298,15 @@ class Joystick(FloatBehavior, Widget):
     '''#####   >   Touch Events   #########################################'''
     '''####################################################################'''
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Clock.schedule_once(self.config)
+    
+    def config(self, *args):
+        self.root = App.get_running_app().root.ids.gamepad
+
     def on_touch_down(self, touch):
-        root = App.get_running_app().root
-        if root.move_layout:
+        if self.root.move_layout:
             return super(Joystick, self).on_touch_down(touch)
 
         if self.collide_point(*touch.pos):
@@ -309,8 +315,7 @@ class Joystick(FloatBehavior, Widget):
         return super(Joystick, self).on_touch_down(touch)
 
     def on_touch_move(self, touch):
-        root = App.get_running_app().root
-        if root.move_layout:
+        if self.root.move_layout:
             return super(Joystick, self).on_touch_move(touch)
             
         if self._touch_is_active(touch):
@@ -321,8 +326,7 @@ class Joystick(FloatBehavior, Widget):
         return super(Joystick, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
-        root = App.get_running_app().root
-        if root.move_layout:
+        if self.root.move_layout:
             self.center_pad()
             return super(Joystick, self).on_touch_up(touch)
         

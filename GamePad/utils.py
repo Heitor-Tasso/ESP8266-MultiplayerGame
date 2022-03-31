@@ -16,6 +16,9 @@ def get_path(local):
 def icon(name, ext='png'):
     return get_path(f'assets/icons/{name}.{ext}')
 
+def background(name, ext='jpg'):
+    return get_path(f'assets/background/{name}.{ext}')
+
 def image(name, ext='png'):
     return get_path(f'assets/images/{name}.{ext}')
 

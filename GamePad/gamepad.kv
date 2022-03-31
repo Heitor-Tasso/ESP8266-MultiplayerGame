@@ -1,9 +1,10 @@
-#: import Joystick uix.joystick.Joystick
-#: import FloatButtonIcon uix.icons.FloatButtonIcon
-#: import ToggleButtonIcon uix.icons.ToggleButtonIcon
-#: import AnchorIcon uix.icons.AnchorIcon
+#:import Joystick uix.joystick.Joystick
+#:import FloatButtonIcon uix.icons.FloatButtonIcon
+#:import ToggleButtonIcon uix.icons.ToggleButtonIcon
+#:import AnchorIcon uix.icons.AnchorIcon
 
-#: import image utils.image
+#:import image utils.image
+#:import icon utils.icon
 
 <GamePad>:
 	BoxLayout:
@@ -20,10 +21,16 @@
 		BoxLayout:
 			size_hint_y: None
 			height:'70dp'
+			AnchorIcon:
+				ToggleButtonIcon:
+					icon_source:icon('return')
+					on_state:
+						root.exit_game()
+						root.manager.current = 'login'
 			Widget:
 			AnchorIcon:
 				ToggleButtonIcon:
-					icon_source:image('correct')
+					icon_source:icon('correct')
 					on_state: root.move_layout = True if self.state == 'down' else False
 
 		FloatLayout:

@@ -30,21 +30,21 @@ class FloatBehavior(object):
         Clock.schedule_once(self.binds)
     
     def binds(self, *args):
-        content_pad = App.get_running_app().root.ids.content_pad
+        self.root = App.get_running_app().root.ids.gamepad
+        content_pad = self.root.ids.content_pad
         content_pad.bind(pos=self.update_pos)
         content_pad.bind(size=self.update_pos)
     
     def update_pos(self, *args):
         if not self.get_root_window():
             return None
-        content_pad = App.get_running_app().root.ids.content_pad
+        content_pad = self.root.ids.content_pad
         self.x = content_pad.x+(content_pad.width*self.hint_x)
         self.y = content_pad.y+(content_pad.height*self.hint_y)
 
     def on_touch_down(self, touch):
-        root = App.get_running_app().root
         if self.collide_point(*touch.pos):
-            if root.move_layout:
+            if self.root.move_layout:
                 self.move_layout = True
                 self.draw_background()
                 return False
@@ -56,20 +56,18 @@ class FloatBehavior(object):
         if self.move_layout:
             self.move_layout = False
 
-            root = App.get_running_app().root
-            json_pos = root.get_json(name='position')
+            json_pos = self.root.get_json(name='position')
             json_pos[self.name]['hint_x'] = self.hint_x
             json_pos[self.name]['hint_y'] = self.hint_y
-            root.update_json(json_pos, name='position')
+            self.root.update_json(json_pos, name='position')
 
         return super().on_touch_up(touch)
     
     def on_touch_move(self, touch):
-        root = App.get_running_app().root
-        if root.move_layout and self.move_layout:
+        if self.root.move_layout and self.move_layout:
             self.clear_background()
             tx, ty = touch.pos
-            content_pad = root.ids.content_pad
+            content_pad = self.root.ids.content_pad
             self.hint_x = round(tx/content_pad.width, 2)
             self.hint_y = round(ty/content_pad.height, 2)
             

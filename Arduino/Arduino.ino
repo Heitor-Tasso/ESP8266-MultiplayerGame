@@ -26,6 +26,7 @@ void start_local_wifi() {
 
 void setup() {
   Serial.begin(9600);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   IPAddress staticIP(192, 168, 4, 2); // IP Static 192.168.4.2
   IPAddress gateway(192, 168, 4, 1);// gateway Static 192.168.4.1

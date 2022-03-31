@@ -8,15 +8,15 @@
         "hint_y": 0.88
     },
     "pad_right": {
-        "hint_x": 0.74,
-        "hint_y": 0.86
+        "hint_x": 0.83,
+        "hint_y": 0.85
     },
     "joystick": {
         "hint_x": 0.06,
         "hint_y": 0.09
     },
     "control_left": {
-        "hint_x": 0.76,
-        "hint_y": 0.06
+        "hint_x": 0.78,
+        "hint_y": 0.08
     }
 }
