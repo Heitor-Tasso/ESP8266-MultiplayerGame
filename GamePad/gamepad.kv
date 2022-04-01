@@ -13,7 +13,7 @@
 		size: root.size
 		canvas.before:
 			Color:
-				rgba: [0, 0.3, 0.5, 1]
+				rgba: black_gray
 			Rectangle:
 				size:self.size
 				pos:self.pos
@@ -66,15 +66,15 @@
 				outer_size: 1
 				inner_size: 0.75
 				pad_size: 0.5
-				outer_line_width: 0.01
-				inner_line_width: 0.01
-				pad_line_width: 0.01
-				outer_background_color: (0.75, 0.75, 0.75, 0.3)
-				outer_line_color: (1, 1, 1, 0.6)
-				inner_background_color: (0.75, 0.75, 0.75, 0.1)
-				inner_line_color: (0.7,  0.7,  0.7,  0.4)
-				pad_background_color: (0.4,  0.4,  0.4,  1)
-				pad_line_color: (1, 1, 1, 0.3)
+				outer_line_width: 0.013
+				inner_line_width: 0.013
+				pad_line_width: 0.013
+				outer_background_color: gray[0:-1] + [0.6]
+				outer_line_color: white[0:-1] + [0.6]
+				inner_background_color: super_gray[0:-1] + [0.2]
+				inner_line_color: blue[0:-1] + [0.4]
+				pad_background_color: blue
+				pad_line_color: clear_white
 
 			FloatButtonIcon:
 				id: control_left

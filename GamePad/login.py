@@ -12,6 +12,7 @@ Builder.load_string("""
 
 #:import IconInput uix.inputs.IconInput
 #:import ButtonEffect uix.buttons.ButtonEffect
+#:import ButtonIcon uix.icons.ButtonIcon
 
 #:import icon utils.icon
 #:import background utils.background
@@ -22,11 +23,10 @@ Builder.load_string("""
         anchor_y: 'center'
         canvas:
             Color:
-                rgba:[1,1,1,1]
+                rgba:mid_gray
             Rectangle:
                 size:self.size
                 pos:self.pos
-                source:background('Fundo')
         BoxLayout:
             orientation:'vertical'
             id:box_principal
@@ -35,12 +35,18 @@ Builder.load_string("""
             on_size:root.size_login(self, args[1])
             canvas:
                 Color:
-                    rgba:[0, 0.5, 0.7, .6]
+                    rgba:light_gray
                 RoundedRectangle:
                     size: self.size
                     pos: self.pos
-                    radius:[30,30]
-                    source:background('Plano_de_Fundo')
+                    radius:[dp(20), dp(20), dp(20), dp(20)]
+            FloatLayout:
+                size_hint: None, None
+                size: 0, 0
+                ButtonIcon:
+                    pos: (root.width-(self.width*2), root.height-(self.height*2))
+                    icon_source: icon('skip')
+                    on_press: root.manager.current = 'gamepad'
             AnchorLayout:
                 Label:
                     text:'Login'
@@ -56,20 +62,24 @@ Builder.load_string("""
                     spacing:'10dp'
                     IconInput:
                         id: input
-                        icon_left_source:icon('user1')
-                        label_text:'Username'
-                        label_pos_color:[0.6, 1.0, 1, 1]
+                        radius: [dp(8), dp(8), dp(8), dp(8)]
+                        icon_left_source: icon('user')
+                        icon_left_size: [dp(30), dp(25)]
+                        label_text: 'Username'
+                        label_pos_color: green
                         
                     IconInput:
-                        icon_left_source:icon('password1')
-                        icon_right_state_sources:[icon('unsee_eye'), icon('see_eye')]
-                        icon_right_color_pos:[0,10,0,1]
-                        icon_right_color:[0.0, 0.4375, 0.7, 1]
-                        icon_right_effect_color:[0.0, 0.6, 0.6, 1]
-                        label_pos_color:[0.6, 1.0, 1, 1]
-                        hide:True if self.ids.button_right.state == 'normal' else False
-                        label_text:'Password'
-                        radius:[dp(15),dp(19),1,dp(15)]
+                        radius: [dp(8), dp(8), dp(8), dp(8)]
+                        icon_left_source: icon('password')
+                        icon_left_size: [dp(30), dp(25)]
+                        icon_right_state_sources: [icon('unsee_eye'), icon('see_eye')]
+                        icon_right_color_pos: green
+                        icon_right_effect_color: clear_white
+                        icon_right_size: [dp(30), dp(32)]
+                        label_pos_color: green
+                        hide:
+                            True if self.ids.button_right.state == 'normal' else False
+                        label_text: 'Password'
             AnchorLayout:
                 size_hint_y:None
                 height:'50dp'
@@ -80,9 +90,10 @@ Builder.load_string("""
                         size_hint_x:0.18
                         id:r_check
                     Button:
-                        background_color:[1,1,1,0]
-                        text:'Lembrar Senha'
-                        on_press:r_check.active = True if r_check.active == False else False
+                        background_color: [1, 1, 1, 0]
+                        text: 'Lembrar Senha'
+                        on_press:
+                            r_check.active = True if r_check.active == False else False
             AnchorLayout:
                 padding:[dp(10),dp(20),dp(10),1]
                 size_hint_y:None
@@ -91,39 +102,48 @@ Builder.load_string("""
                     text:'Entrar'
                     size_hint_x:None
                     width:'150dp'
-                    color_background:[[0.099, 0.32, 1, 1], [0,0.5,30,1]]
-                    color_effect:[0,3,0,0.4]
-                    radius:[dp(15),dp(15),dp(15),dp(15)]
+                    background_color: [0, 0, 0, 0]
+                    color_line: [clear_white, white]
+                    color_effect: light_gray
+                    radius: [dp(15), dp(15), dp(15), dp(15)]
                     on_press: root.start_thread_login()
             Widget:
                 size_hint_y:0.3
             AnchorLayout:
                 size_hint_y:None
                 height:'40dp'
-                Button:
-                    text:'Esqueceu sua senha?'
-                    color:[1,1,1,1] if self.state == 'normal' else [0,10,0,1]
-                    size_hint_x:None
-                    width:'200dp'
-                    background_color:[1,1,1,0]
+                ButtonEffect:
+                    size_hint_x: None
+                    width: '200dp'
+                    text: 'Esqueceu sua senha?'
+                    color_text: [white, green]
+                    color_line: [0, 0, 0, 0]
+                    effect_color: [0, 0, 0, 0]
             Widget:
                 size_hint_y:0.3
 
 """)
 
 class Login(Screen):
-    started = False
+    can_call_thread = False
     gamepad = ObjectProperty(None)
 
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        Clock.schedule_once(self.config)
+    
+    def config(self, *args):
+        self.manager.current = 'gamepad'
+
     def start_thread_login(self, *args):
-        if self.started:
+        if self.can_call_thread:
             return None
         
         username = self.ids.input.ids.input.text
         if not username:
             return None
 
-        self.started = True
+        self.can_call_thread = True
         self.gamepad.username = username
         th = Thread(target=self.login_game)
         th.start()
@@ -132,7 +152,7 @@ class Login(Screen):
         sucessfull = True
         esp = self.gamepad.connect_to_esp()
         if esp is None:
-            self.started = False
+            self.can_call_thread = False
             return False
         try:
             esp.send(f'{self.gamepad.index_player}:np:{self.gamepad.username}\n'.encode('utf-8'))
@@ -154,7 +174,7 @@ class Login(Screen):
                 self.gamepad.lifes = int(values[2])
         
         self.gamepad.close_connection_esp(esp)
-        self.started = False
+        self.can_call_thread = False
         
     def size_login(self, box, size):
         w, h = size

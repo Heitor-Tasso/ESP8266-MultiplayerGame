@@ -37,10 +37,11 @@ void setup() {
   server.begin();
   
   //start_local_wifi(); // Start STATION ACCESS
-  Serial.println("");
+  Serial.println(".......................");
   Serial.println("Server started!");
   print_str(WiFi.softAPIP().toString(), "getway");
   print_str(WiFi.localIP().toString(), "ip");
+  Serial.println(".......................");
 }
 
 void get_connection(WiFiClient client) {
@@ -84,8 +85,7 @@ void loop() {
   digitalWrite(LED_BUILTIN, HIGH);
 
   WiFiClient client = server.available();
-  if (client) {
-    get_connection(client);
-  }
+  if (client) { get_connection(client); }
+  
   digitalWrite(LED_BUILTIN, LOW);
 }

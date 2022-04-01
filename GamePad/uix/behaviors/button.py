@@ -25,15 +25,16 @@ class FloatBehavior(object):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bind(hint_x=self.update_pos)
-        self.bind(hint_y=self.update_pos)
         Clock.schedule_once(self.binds)
     
     def binds(self, *args):
+        self.bind(hint_x=self.update_pos)
+        self.bind(hint_y=self.update_pos)
         self.root = App.get_running_app().root.ids.gamepad
         content_pad = self.root.ids.content_pad
         content_pad.bind(pos=self.update_pos)
         content_pad.bind(size=self.update_pos)
+        Clock.schedule_once(self.update_pos)
     
     def update_pos(self, *args):
         if not self.get_root_window():
@@ -60,21 +61,62 @@ class FloatBehavior(object):
             json_pos[self.name]['hint_x'] = self.hint_x
             json_pos[self.name]['hint_y'] = self.hint_y
             self.root.update_json(json_pos, name='position')
+            Clock.schedule_once(self.root.clear_middle_line, 2)
+            Clock.schedule_once(self.remove_equals, 2)
 
         return super().on_touch_up(touch)
-    
+
     def on_touch_move(self, touch):
         if self.root.move_layout and self.move_layout:
             self.clear_background()
-            tx, ty = touch.pos
             content_pad = self.root.ids.content_pad
+            tx, ty = touch.pos
+
+            s_center = self.x+(self.width/2)
+            p_center = content_pad.x+(content_pad.width/2)
+            if s_center < p_center+dp(5) and s_center > p_center-dp(5):
+                if tx > p_center-(self.width/2) and tx < p_center+(self.width/2):
+                    tx = p_center - (self.width/2)
+                    self.root.add_middle_line()
+                    Clock.unschedule(self.root.clear_middle_line)
+                else:
+                    Clock.schedule_once(self.root.clear_middle_line, 1)
+            
             self.hint_x = round(tx/content_pad.width, 2)
             self.hint_y = round(ty/content_pad.height, 2)
-            
+
+            self.find_equals()
             self.draw_background()
             return False
         return super().on_touch_move(touch)
     
+    def find_equals(self, *args):
+        json_pos = self.root.get_json(name='position')
+        content_pad = self.root.ids.content_pad
+
+        for name, values in json_pos.items():
+            x = content_pad.x+(content_pad.width*values['hint_x'])
+            y = content_pad.y+(content_pad.height*values['hint_y'])
+            if x == self.x:
+                self.root.add_line(self.x, f'{name}_x')
+            else:
+                self.root.remove_line(f'{name}_x')
+            if y == self.y:
+                self.root.add_line(self.y, f'{name}_y')
+            else:
+                self.root.remove_line(f'{name}_y')
+    
+    def remove_equals(self, *args):
+        json_pos = self.root.get_json(name='position')
+        content_pad = self.root.ids.content_pad
+        for name, values in json_pos.items():
+            x = content_pad.x+(content_pad.width*values['hint_x'])
+            y = content_pad.y+(content_pad.height*values['hint_y'])
+            if x == self.x:
+                self.root.remove_line(f'{name}_x')
+            if y == self.y:
+                self.root.remove_line(f'{name}_y')
+
     def update_background(self, *args):
         self.clear_background(unbind=False)
         self.draw_background(bind=False)

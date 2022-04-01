@@ -26,6 +26,7 @@ class GamePad(Screen):
     can_move = True
     move_layout = ObjectProperty(False)
     username = ''
+    connected = False
     index_player = '-1'
     lifes = 0
 
@@ -71,7 +72,9 @@ class GamePad(Screen):
             setattr(wid, 'hint_x', hints['hint_x'])
             setattr(wid, 'hint_y', hints['hint_y'])
     
-    def connect_to_esp(self, *args):
+    def connect_to_esp(self, first=False, *args):
+        if not self.connected or first:
+            return None
         esp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         esp.settimeout(2)
         try:
@@ -98,6 +101,7 @@ class GamePad(Screen):
                     if resp[0] == 'life':
                         if self.lifes != int(resp[1]):
                             self.lifes = int(resp[1])
+                            self.connected = True
                             print(resp)
                     elif resp[0] == 'gameover':
                         print("MORRI: ", resp)
@@ -111,7 +115,7 @@ class GamePad(Screen):
                 Clock.schedule_once(lambda *a: setattr(self, 'can_move', True), 0.05)
         except (ConnectionAbortedError, socket.timeout, TimeoutError):
             print(f'Tentando mandar: [ {msg} ] novamente!')
-            Clock.schedule_once(partial(self.send_informations_esp, msg))
+            Clock.schedule_once(partial(self.send_informations, msg))
         self.close_connection_esp(esp)
     
     def send_informations_with_thread(self, msg, *args):
@@ -140,6 +144,7 @@ class GamePad(Screen):
         self.add_grid(bind=False)
 
     def add_grid(self, bind=True, *args):
+        self.clear_grid(bind)
         content_pad = self.ids.content_pad
         add = content_pad.canvas.before.add
         add(Color(rgba=[0, 0, 1, 1], group='grid_background'))
@@ -166,4 +171,54 @@ class GamePad(Screen):
         if unbind:
             self.unbind(size=self.update_grid)
             self.unbind(pos=self.update_grid)
+    
+    def update_middle_line(self, *args):
+        self.clear_middle_line(unbind=False)
+        self.add_middle_line(bind=False)
 
+    def add_middle_line(self, bind=True, *args):
+        self.clear_middle_line(bind)
+        content_pad = self.ids.content_pad
+        add = content_pad.canvas.before.add
+        add(Color(rgba=[1, 0, 0, 1], group='middle_background'))
+        add(Line(
+            points=[content_pad.x+(content_pad.width/2), content_pad.y,
+                    content_pad.x+(content_pad.width/2), content_pad.y+content_pad.height],
+            group='middle_background'))
+        
+        if bind:
+            self.bind(size=self.update_middle_line)
+            self.bind(pos=self.update_middle_line)
+    
+    def clear_middle_line(self, unbind=True, *args):
+        content_pad = self.ids.content_pad
+        content_pad.canvas.before.remove_group('middle_background')
+        if unbind:
+            self.unbind(size=self.update_middle_line)
+            self.unbind(pos=self.update_middle_line)
+
+    def update_line(self, instance, *args):
+        self.remove_line(f'{instance.name}_x', unbind=False)
+        self.remove_line(f'{instance.name}_y', unbind=False)
+        self.add_line(f'{instance.name}_x', bind=False)
+        self.add_line(f'{instance.name}_y', bind=False)
+
+    def add_line(self, pos, name, bind=True, *args):
+        self.remove_line(name, unbind=bind)
+        content_pad = self.ids.content_pad
+        add = content_pad.canvas.before.add
+        add(Color(rgba=[1, 0, 0, 1], group=name))
+
+        if name.endswith('x'):
+            pos = [pos, content_pad.y, pos, content_pad.y+content_pad.height]
+        elif name.endswith('y'):
+            pos = [content_pad.x, pos, content_pad.x+content_pad.width, pos]
+
+        add(Line(points=pos, group=name))
+        
+    def remove_line(self, name, unbind=True, *args):
+        content_pad = self.ids.content_pad
+        content_pad.canvas.before.remove_group(name)
+        if unbind:
+            self.unbind(size=self.update_line)
+            self.unbind(pos=self.update_line)

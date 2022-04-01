@@ -38,16 +38,16 @@ Builder.load_string("""
             id:anchor_left
             padding:[1,1,1,1]
             size_hint_x:None
-            width:root.icon_left_size[0]
+            width:root.icon_left_size[0] + dp(15)
             anchor_y:'center'
             ToggleButtonIcon:
                 id:button_left
-                num: 0
                 allow_stretch:True
                 name:'icon_left'
                 keep_ratio:False
+                mipmap: True
                 size_hint_y:None
-                height:root.icon_left_size[1]
+                size:root.icon_left_size
                 pos_source:root.icon_left_pos_source
                 icon_source:root.icon_left_source
                 icon_color:root.icon_left_color
@@ -57,33 +57,33 @@ Builder.load_string("""
                 state_button:root.icon_left_state
         AnchorLayout:
             id:anchor_input
-            BoxLayout:
-                orientation:'vertical'
-                Widget:
-                    size_hint_y:'0.11dp'
+            AnchorLayout:
+                anchor_y: 'center'
                 MyTextInput:
                     id:input
                     window_root:root
-                    background_color:[1,1,1,0]
+                    background_color:[1, 1, 1, 0]
                     password:root.hide
                     foreground_color:root.text_input_color
                     multiline:False
+                    size_hint_y: None
+                    height: self.minimum_height
 
         AnchorLayout:
-            padding:[-1,1,7,1]
+            padding:[dp(-1), dp(1), dp(10), dp(1)]
             size_hint_x:None
-            width:root.icon_right_size[0]
+            width:root.icon_right_size[0] + dp(15)
             anchor_y:'center'
             id:anchor_right
             ToggleButtonIcon:
                 id:button_right
-                num: 0
                 name:'icon_right'
                 window_root:root
                 allow_stretch:True
                 keep_ratio:False
+                mipmap: True
                 size_hint_y:None
-                height:root.icon_right_size[1]
+                size:root.icon_right_size
                 pos_source:root.icon_right_pos_source
                 icon_source:root.icon_right_source
                 state_sources: root.icon_right_state_sources
@@ -143,7 +143,7 @@ class IconInput(AnchorLayout):
     label_font_size = NumericProperty(dp(16))
     label_defaut_color = ListProperty([1,1,1,1])
     label_pos_color = ListProperty([1,1,1,1])
-    state_label = StringProperty()
+    state_label = StringProperty('')
 
     input = ObjectProperty(None)
     text_input_color = ListProperty([1,1,1,1])
@@ -189,7 +189,7 @@ class IconInput(AnchorLayout):
         self.input = self.ids.input
         if not self.icon_left_source and not self.icon_left_state_sources[0] and not self.icon_left_pos_source:
             self.ids.box.remove_widget(self.ids.anchor_left)
-            self.icon_left_size = [0,0]
+            self.icon_left_size = [0, 0]
             self.icon_left = False
         if not self.icon_right_source and not self.icon_right_state_sources[0] and not self.icon_right_pos_source:
             self.ids.box.remove_widget(self.ids.anchor_right)
@@ -282,9 +282,9 @@ class IconInput(AnchorLayout):
         if radius_left <= dp(13):
             radius_left = dp(13)
         if self.icon_left_size[0] == 0:
-            self.pfora = (self.x-dp(50)+radius_left, self.y+dp(10))
+            self.pfora = (self.x-dp(40)+radius_left, self.y+dp(10))
         else:
-            self.pfora = (self.x-dp(50)+self.icon_left_size[0]+radius_left/2, self.y+dp(10))
+            self.pfora = (self.x-dp(40)+self.icon_left_size[0]+radius_left/2, self.y+dp(10))
 
         if self.state_label == 'pdentro':
             self.ids.lbl.pos = self.pdentro
