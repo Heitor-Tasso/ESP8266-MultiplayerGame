@@ -1,6 +1,7 @@
 
 __all__ = ['ButtonBehavior', 'ToggleButtonBehavior', 'FloatBehavior']
 
+import json
 from kivy.clock import Clock
 from kivy.config import Config
 from weakref import ref
@@ -22,6 +23,9 @@ class FloatBehavior(object):
     hint_y = NumericProperty(0.5)
     name = ''
     move_layout = False
+    selected = False
+    root = ObjectProperty(None)
+    pad_widget = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -31,25 +35,29 @@ class FloatBehavior(object):
         self.bind(hint_x=self.update_pos)
         self.bind(hint_y=self.update_pos)
         self.root = App.get_running_app().root.ids.gamepad
-        content_pad = self.root.ids.content_pad
-        content_pad.bind(pos=self.update_pos)
-        content_pad.bind(size=self.update_pos)
+        self.pad_widget = self.root.ids.content_pad
+        self.pad_widget.bind(pos=self.update_pos)
+        self.pad_widget.bind(size=self.update_pos)
         Clock.schedule_once(self.update_pos)
     
     def update_pos(self, *args):
         if not self.get_root_window():
             return None
-        content_pad = self.root.ids.content_pad
-        self.x = content_pad.x+(content_pad.width*self.hint_x)
-        self.y = content_pad.y+(content_pad.height*self.hint_y)
+        self.x = self.pad_widget.x+(self.pad_widget.width*self.hint_x)
+        self.y = self.pad_widget.y+(self.pad_widget.height*self.hint_y)
+        if self.selected and not self.move_layout:
+            self.find_equals()
+            Clock.schedule_once(self.remove_equals, 2)
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             if self.root.move_layout:
+                self.selected = True
                 self.move_layout = True
                 self.draw_background()
                 return False
         else:
+            self.selected = False
             self.clear_background()
         return super().on_touch_down(touch)
     
@@ -69,11 +77,10 @@ class FloatBehavior(object):
     def on_touch_move(self, touch):
         if self.root.move_layout and self.move_layout:
             self.clear_background()
-            content_pad = self.root.ids.content_pad
             tx, ty = touch.pos
 
             s_center = self.x+(self.width/2)
-            p_center = content_pad.x+(content_pad.width/2)
+            p_center = self.pad_widget.x+(self.pad_widget.width/2)
             if s_center < p_center+dp(5) and s_center > p_center-dp(5):
                 if tx > p_center-(self.width/2) and tx < p_center+(self.width/2):
                     tx = p_center - (self.width/2)
@@ -82,39 +89,57 @@ class FloatBehavior(object):
                 else:
                     Clock.schedule_once(self.root.clear_middle_line, 1)
             
-            self.hint_x = round(tx/content_pad.width, 2)
-            self.hint_y = round(ty/content_pad.height, 2)
+            self.hint_x = round(tx/self.pad_widget.width, 2)
+            self.hint_y = round(ty/self.pad_widget.height, 2)
 
             self.find_equals()
             self.draw_background()
             return False
         return super().on_touch_move(touch)
     
-    def find_equals(self, *args):
+    def get_floats_config(self, *args):
         json_pos = self.root.get_json(name='position')
-        content_pad = self.root.ids.content_pad
+        del json_pos[self.name]
+        px, py = self.pad_widget.pos
+        pw, ph = self.pad_widget.size
 
         for name, values in json_pos.items():
-            x = content_pad.x+(content_pad.width*values['hint_x'])
-            y = content_pad.y+(content_pad.height*values['hint_y'])
-            if x == self.x:
-                self.root.add_line(self.x, f'{name}_x')
-            else:
-                self.root.remove_line(f'{name}_x')
-            if y == self.y:
-                self.root.add_line(self.y, f'{name}_y')
-            else:
-                self.root.remove_line(f'{name}_y')
+            x = px+(pw*values['hint_x'])
+            y = py+(ph*values['hint_y'])
+            w, h = values['width'], values['height']
+            center_x, center_y = (x + (w*0.5)), (y + (h*0.5))
+            yield (name, x, y, w, h, center_x, center_y)
+
+    def precision(self, n1, n2): return (n1 > (n2-dp(5)) and n1 < (n2+dp(5)))
+
+    def find_equals(self, *args):
+        sw, sh = self.size
+        sx, sy = self.pos
+        cx, cy = self.center_x, self.center_y
+        for name, x, y, w, h, center_x, center_y in self.get_floats_config():
+            
+            self.root.remove_line(f'{name}_x')
+            if self.precision(x, sx) or self.precision(x, (sx+sw)):
+                self.root.add_line(x, f'{name}_x')
+            if self.precision(center_x, cx):
+                self.root.add_line(center_x, f'{name}_x')
+            if self.precision((x+w), sx) or self.precision((x+w), (sx+sw)):
+                self.root.add_line((x+w), f'{name}_x')
+
+            self.root.remove_line(f'{name}_y')
+            if self.precision(y, sy) or self.precision(y, (sy+sh)):
+                self.root.add_line(y, f'{name}_y')
+            if self.precision(center_y, cy):
+                self.root.add_line(center_y, f'{name}_y')
+            if self.precision((y+h), (sy+sh)) or self.precision((y+h), sy):
+                self.root.add_line((y+h), f'{name}_y')
     
     def remove_equals(self, *args):
-        json_pos = self.root.get_json(name='position')
-        content_pad = self.root.ids.content_pad
-        for name, values in json_pos.items():
-            x = content_pad.x+(content_pad.width*values['hint_x'])
-            y = content_pad.y+(content_pad.height*values['hint_y'])
-            if x == self.x:
+        for values in self.get_floats_config():
+            name, x, y, w, h, center_x, center_y = values
+            if x == self.x or center_x == self.center_x or (y+h) == (self.y+self.height):
                 self.root.remove_line(f'{name}_x')
-            if y == self.y:
+            if y == self.y or center_y == self.center_y or (x+w) == (self.x+self.width):
                 self.root.remove_line(f'{name}_y')
 
     def update_background(self, *args):

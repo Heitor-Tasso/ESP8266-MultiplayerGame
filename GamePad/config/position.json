@@ -1,22 +1,32 @@
 {
     "pad_left": {
         "hint_x": 0.03,
-        "hint_y": 0.85
+        "hint_y": 0.85,
+        "width": 100,
+        "height": 70
     },
     "options": {
         "hint_x": 0.47,
-        "hint_y": 0.89
+        "hint_y": 0.91,
+        "width": 50,
+        "height": 50
     },
     "pad_right": {
         "hint_x": 0.82,
-        "hint_y": 0.85
+        "hint_y": 0.85,
+        "width": 100,
+        "height": 70
     },
     "joystick": {
-        "hint_x": 0.05,
-        "hint_y": 0.04
+        "hint_x": 0.03,
+        "hint_y": 0.04,
+        "width": 100,
+        "height": 100
     },
     "control_left": {
         "hint_x": 0.82,
-        "hint_y": 0.03
+        "hint_y": 0.04,
+        "width": 100,
+        "height": 100
     }
 }

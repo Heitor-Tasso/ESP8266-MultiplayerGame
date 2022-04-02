@@ -71,6 +71,8 @@ class GamePad(Screen):
             setattr(wid, 'name', id)
             setattr(wid, 'hint_x', hints['hint_x'])
             setattr(wid, 'hint_y', hints['hint_y'])
+            setattr(wid, 'width', hints['width'])
+            setattr(wid, 'height', hints['height'])
     
     def connect_to_esp(self, first=False, *args):
         if not self.connected or first:
@@ -197,28 +199,16 @@ class GamePad(Screen):
             self.unbind(size=self.update_middle_line)
             self.unbind(pos=self.update_middle_line)
 
-    def update_line(self, instance, *args):
-        self.remove_line(f'{instance.name}_x', unbind=False)
-        self.remove_line(f'{instance.name}_y', unbind=False)
-        self.add_line(f'{instance.name}_x', bind=False)
-        self.add_line(f'{instance.name}_y', bind=False)
-
-    def add_line(self, pos, name, bind=True, *args):
-        self.remove_line(name, unbind=bind)
+    def add_line(self, pos, name, *args):
         content_pad = self.ids.content_pad
         add = content_pad.canvas.before.add
         add(Color(rgba=[1, 0, 0, 1], group=name))
-
         if name.endswith('x'):
             pos = [pos, content_pad.y, pos, content_pad.y+content_pad.height]
         elif name.endswith('y'):
             pos = [content_pad.x, pos, content_pad.x+content_pad.width, pos]
-
         add(Line(points=pos, group=name))
         
-    def remove_line(self, name, unbind=True, *args):
+    def remove_line(self, name, *args):
         content_pad = self.ids.content_pad
         content_pad.canvas.before.remove_group(name)
-        if unbind:
-            self.unbind(size=self.update_line)
-            self.unbind(pos=self.update_line)
