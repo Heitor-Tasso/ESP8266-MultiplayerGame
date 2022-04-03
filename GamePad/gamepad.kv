@@ -18,12 +18,14 @@
 			size_hint_y: None
 			height:'70dp'
 			AnchorIcon:
-				ToggleButtonIcon:
+				ButtonIcon:
 					icon_source:icon('return')
-					on_state:
-						root.exit_game()
-						root.manager.current = 'login'
+					on_press: root.exit_game()
 			Widget:
+			AnchorIcon:
+				ButtonIcon:
+					icon_source:icon('reload')
+					on_press: root.reload_json_position('default_position', 'position')
 			AnchorIcon:
 				ToggleButtonIcon:
 					icon_source:icon('correct')
@@ -39,6 +41,9 @@
 				y:content_pad.y+(content_pad.height*0.5)-(self.height*0.5)
 				color: [1, 1, 1, 1]
 
+			FloatLifes:
+				id:lifes
+			
 			FloatButtonIcon:
 				id:pad_left
 				icon_source:image('pad_left')

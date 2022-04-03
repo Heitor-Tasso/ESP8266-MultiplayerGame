@@ -53,7 +53,7 @@ void get_connection(WiFiClient client) {
   int index_player = splited[0].toInt();
   
   if (splited[1].equals("recv")) {
-    send_life(index_player, client);
+    send_informations(index_player, client);
   }
   else if (splited[1].equals("mov")) {
     double coords_move[3]; // [ x, y, angle_joystick ]

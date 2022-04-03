@@ -1,11 +1,13 @@
 
 __all__ = ['AnchorIcon', 'Icon', 'ButtonIcon', 'ToggleButtonIcon']
 
+from kivy.graphics import Color, Rectangle
 from .behaviors.button import ButtonBehavior, ToggleButtonBehavior, FloatBehavior
 from .behaviors.touch_effecs import EffectBehavior
 
 from kivy.uix.image import Image
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.boxlayout import BoxLayout
 
 from kivy.properties import (
     ListProperty, StringProperty,
@@ -14,6 +16,8 @@ from kivy.properties import (
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.clock import Clock
+from kivy.metrics import dp
+from utils import icon
 
 Builder.load_string('''
 
@@ -74,6 +78,10 @@ Builder.load_string('''
 
 <FloatToggleButtonIcon>:
     size:'100dp', '100dp'
+
+<FloatLifes>:
+    size_hint:None, None
+    size:'100dp', '30dp'
 
 ''', filename="icons.kv")
 
@@ -173,3 +181,35 @@ class FloatButtonIcon(FloatBehavior, ButtonIcon):
 
 class FloatToggleButtonIcon(FloatBehavior, ToggleButtonIcon):
     pass
+
+class FloatLifes(FloatBehavior, BoxLayout):
+    life_size = ListProperty([dp(25), dp(25)])
+    lifes = 0
+
+    def update_back_lifes(self, *args):
+        self.clear_lifes(unbind=False)
+        self.show_lifes(self.lifes, bind=False)
+
+    def show_lifes(self, life, bind=True, *args):
+        self.lifes = life
+        add = self.canvas.add
+        space = dp(5)
+        img = Image(size_hint=(None, None), size=self.life_size, source=icon('life'))
+        x = self.x
+        y = self.center_y - (self.life_size[0]/2)
+        add(Color(rgba=[1, 1, 1, 1], group='lifes'))
+        for _ in range(life):
+            add(Rectangle(
+                pos=(x, y), size=img.size,
+                texture=img.texture, group='lifes'))
+            x += self.life_size[0] + space
+
+        if bind:
+            self.bind(size=self.update_back_lifes)
+            self.bind(pos=self.update_back_lifes)
+
+    def clear_lifes(self, unbind=True, *args):
+        self.canvas.remove_group('lifes')
+        if unbind:
+            self.unbind(size=self.update_back_lifes)
+            self.unbind(pos=self.update_back_lifes)

@@ -21,7 +21,7 @@ extern int index_np;
 
 int new_player(String player_name, WiFiClient client);
 void remove_player(int index_player);
-void send_life(int index_player, WiFiClient client);
+void send_informations(int index_player, WiFiClient client);
 int collid_player(double pos[], double px, double py);
 void player_attack(int index_player, String atk, WiFiClient client);
 void move_player(double x, double y, double angle, int index_player);

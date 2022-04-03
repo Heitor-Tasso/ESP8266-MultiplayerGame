@@ -1,5 +1,4 @@
 
-from kivy.app import App
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
@@ -7,7 +6,9 @@ from kivy.graphics import Color, Line
 from kivy.uix.screenmanager import Screen
 from kivy.metrics import dp
 from uix.joystick import Joystick
-from uix.icons import FloatButtonIcon, ToggleButtonIcon, AnchorIcon
+from uix.icons import (
+    FloatButtonIcon, ToggleButtonIcon,
+    ButtonIcon, AnchorIcon, FloatLifes)
 
 import socket
 import json
@@ -44,11 +45,18 @@ class GamePad(Screen):
         self.ids.joystick.bind(pad=self.update_coordinates)
 
     def start_game(self, *args):
+        self.connected = True
         Clock.unschedule(self.recv_update)
-        Clock.schedule_interval(self.recv_update, 0.1)
+        Clock.schedule_interval(self.recv_update, 0.2)
         self.manager.current = 'gamepad'
+        self.ids.lifes.show_lifes(self.lifes)
 
     def exit_game(self, *args):
+        self.manager.current = 'login'
+        if not self.username:
+            return None
+        
+        Clock.unschedule(self.recv_update)
         self.send_informations_with_thread('exit:save')
 
     def recv_update(self, *args):
@@ -58,9 +66,10 @@ class GamePad(Screen):
         with open(config_path(name), 'r', encoding='utf-8') as file:
             return json.load(file)
 
-    def set_default_json(self, default_name, update_name, *args):
+    def reload_json_position(self, default_name, update_name, *args):
         default = self.get_json(name=default_name)
         self.update_json(default, name=update_name)
+        self.load_json_pos()
 
     def update_json(self, new_json, name):
         with open(config_path(name), 'w', encoding='utf-8') as file:
@@ -105,10 +114,12 @@ class GamePad(Screen):
                     if resp[0] == 'life':
                         if self.lifes != int(resp[1]):
                             self.lifes = int(resp[1])
+                            self.ids.lifes.clear_lifes()
+                            self.ids.lifes.show_lifes(self.lifes)
+                            if self.lifes == 0:
+                                print("MORRI!!")
                             self.connected = True
                             print(resp)
-                    elif resp[0] == 'gameover':
-                        print("MORRI: ", resp)
                     else:
                         print(resp)
 
@@ -117,6 +128,10 @@ class GamePad(Screen):
             elif msg.find('mov') != -1:
                 print('Moveu!!')
                 Clock.schedule_once(lambda *a: setattr(self, 'can_move', True), 0.05)
+            elif msg.find('exit') != -1:
+                self.connected = False
+                print(self.username + " saiu!")
+                self.username = ''
         except (ConnectionAbortedError, socket.timeout, TimeoutError):
             print(f'Tentando mandar: [ {msg} ] novamente!')
             Clock.schedule_once(partial(self.send_informations, msg))

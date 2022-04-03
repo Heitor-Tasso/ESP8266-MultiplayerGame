@@ -53,13 +53,13 @@ void remove_player(int index_player) {
   }
 }
 
-void send_life(int index_player, WiFiClient client) {
+void send_informations(int index_player, WiFiClient client) {
+  String life = String("life:")+String(players_life[index_player])+String(":");
+  print_client(life, client); 
   if (players_life[index_player] == 0) {
-    print_client(String("gameover:")+String(players_life[index_player]), client);
     players_life[index_player] = num_lifes;
-  }
-  else {
-    print_client(String("life:")+String(players_life[index_player]), client); 
+    Serial.print(players[index_player]);
+    Serial.println(" morreu!!");
   }
 }
 
@@ -88,45 +88,54 @@ void player_attack(int index_player, String atk, WiFiClient client) {
 }
 
 void move_player(double x, double y, double angle, int index_player) {
+  Serial.print(players[index_player] + String(" "));
   if (x > 0.4) {
     if (y > -0.4 && y < 0.4) {
-      Serial.println("movendo para direita");
+      Serial.print("movendo para direita");
       players_pos[index_player][0] += 5;
     }
     else if (y > 0.4) {
-      Serial.println("movendo para direita e cima");
+      Serial.print("movendo para direita e cima");
     }
     else if (y < -0.4) {
-      Serial.println("movendo para direita e baixo");
+      Serial.print("movendo para direita e baixo");
     }
   }
   else if (x < -0.4) {
     if (y > -0.4 && y < 0.4) {
-      Serial.println("movendo para esquerda");
+      Serial.print("movendo para esquerda");
       players_pos[index_player][0] -= 5;
     }
     else if (y > 0.4) {
-      Serial.println("movendo para esquerda e cima");
+      Serial.print("movendo para esquerda e cima");
     }
     else if (y < -0.4) {
-      Serial.println("movendo para esquerda e baixo");
+      Serial.print("movendo para esquerda e baixo");
     }
   }
   else if (y > 0.4) {
     if (x > -0.4 && x < 0.4) {
-      Serial.println("movendo para cima");
+      Serial.print("movendo para cima");
       players_pos[index_player][1] += 5;
     }
   }
   else if (y < -0.4) {
     if (x > -0.4 && x < 0.4) {
-      Serial.println("movendo para baixo");
+      Serial.print("movendo para baixo");
       players_pos[index_player][1] -= 5;
     }
   }
+  Serial.print(" na posição [");
+  Serial.print(players_pos[index_player][0]);
+  Serial.print(", ");
+  Serial.print(players_pos[index_player][1]);
+  Serial.println("]");
 }
 
 void rotate_player(double angle, int index_player) {
+  Serial.print(players[index_player] + String(" no angulo "));
+  Serial.print(angle);
+  Serial.print(", ");
   if (angle == 0) {
       Serial.println("movendo para direita angle");
     }

@@ -1,4 +1,4 @@
-from kivy.lang import Builder
+
 from kivy.metrics import dp
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
@@ -153,6 +153,7 @@ class Login(Screen):
         esp = self.gamepad.connect_to_esp(force=True)
         if esp is None:
             self.can_call_thread = False
+            self.gamepad.username = ''
             return False
         try:
             esp.send(f'{self.gamepad.index_player}:np:{self.gamepad.username}\n'.encode('utf-8'))
@@ -170,8 +171,12 @@ class Login(Screen):
                 sucessfull = False
             elif values[0] == "start":
                 # values[1::] == INDEX, LIFES
+                username = self.ids.input.ids.input.text
+                self.gamepad.username = username
                 self.gamepad.index_player = values[1]
                 self.gamepad.lifes = int(values[2])
+        else:
+            self.gamepad.username = ''
         
         self.gamepad.close_connection_esp(esp)
         self.can_call_thread = False
