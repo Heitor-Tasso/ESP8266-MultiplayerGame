@@ -150,7 +150,7 @@ class Login(Screen):
     
     def login_game(self, *args):
         sucessfull = True
-        esp = self.gamepad.connect_to_esp()
+        esp = self.gamepad.connect_to_esp(force=True)
         if esp is None:
             self.can_call_thread = False
             return False

@@ -2,11 +2,10 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager
+from gamepad import GamePad
+from login import Login
 
 Builder.load_string("""
-
-#:import GamePad gamepad.GamePad
-#:import Login login.Login
 
 #:import hex kivy.utils.get_color_from_hex
 

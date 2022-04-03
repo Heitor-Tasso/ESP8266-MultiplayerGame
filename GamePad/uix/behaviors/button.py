@@ -1,19 +1,19 @@
 
 __all__ = ['ButtonBehavior', 'ToggleButtonBehavior', 'FloatBehavior']
 
-import json
 from kivy.clock import Clock
 from kivy.config import Config
 from weakref import ref
 from time import time
 from kivy.app import App
 from kivy.uix.image import Image
-from utils import image
+from utils import image, icon
 from kivy.metrics import dp
 
 from kivy.properties import (
     OptionProperty, ObjectProperty,
     BooleanProperty, NumericProperty,
+    ListProperty,
 )
 
 from kivy.graphics import Color, Line, Rectangle
@@ -24,8 +24,10 @@ class FloatBehavior(object):
     name = ''
     move_layout = False
     selected = False
+    resized = False
     root = ObjectProperty(None)
     pad_widget = ObjectProperty(None)
+    last_touch_pos = ListProperty([0, 0])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -45,20 +47,42 @@ class FloatBehavior(object):
             return None
         self.x = self.pad_widget.x+(self.pad_widget.width*self.hint_x)
         self.y = self.pad_widget.y+(self.pad_widget.height*self.hint_y)
-        if self.selected and not self.move_layout:
+        if (self.selected or self.resized) and not self.move_layout:
             self.find_equals()
             Clock.schedule_once(self.remove_equals, 2)
 
     def on_touch_down(self, touch):
+        self.last_touch_pos = touch.pos
         if self.collide_point(*touch.pos):
             if self.root.move_layout:
-                self.selected = True
                 self.move_layout = True
-                self.draw_background()
+                if touch.is_double_tap:
+                    self.resized = True
+                    self.selected = False
+                    self.clear_background_selected()
+                    self.draw_background_resized()
+                else:
+                    if self.resized:
+                        tx, ty = touch.pos
+                        if not (self.precision(tx, self.x+self.width) or self.precision(tx, self.x)) \
+                            and not self.precision(ty, self.y+self.height):
+                            self.resized = False
+                        elif not (self.precision(tx, self.x+self.width) or self.precision(tx, self.x)) \
+                            and not self.precision(ty, self.y):
+                            self.resized = False
+                    
+                    if not self.resized:
+                        self.selected = True
+                        self.clear_background_resized()
+                        self.draw_background_selected()
+                    
                 return False
         else:
             self.selected = False
-            self.clear_background()
+            self.resized = False
+            self.move_layout = False
+            self.clear_background_selected()
+            self.clear_background_resized()
         return super().on_touch_down(touch)
     
     def on_touch_up(self, touch):
@@ -68,6 +92,8 @@ class FloatBehavior(object):
             json_pos = self.root.get_json(name='position')
             json_pos[self.name]['hint_x'] = self.hint_x
             json_pos[self.name]['hint_y'] = self.hint_y
+            json_pos[self.name]['width'] = self.width
+            json_pos[self.name]['height'] = self.height
             self.root.update_json(json_pos, name='position')
             Clock.schedule_once(self.root.clear_middle_line, 2)
             Clock.schedule_once(self.remove_equals, 2)
@@ -76,25 +102,35 @@ class FloatBehavior(object):
 
     def on_touch_move(self, touch):
         if self.root.move_layout and self.move_layout:
-            self.clear_background()
             tx, ty = touch.pos
+            if self.selected:
+                self.clear_background_selected()
+                s_center = self.x+(self.width/2)
+                p_center = self.pad_widget.x+(self.pad_widget.width/2)
 
-            s_center = self.x+(self.width/2)
-            p_center = self.pad_widget.x+(self.pad_widget.width/2)
-            if s_center < p_center+dp(5) and s_center > p_center-dp(5):
-                if tx > p_center-(self.width/2) and tx < p_center+(self.width/2):
-                    tx = p_center - (self.width/2)
-                    self.root.add_middle_line()
-                    Clock.unschedule(self.root.clear_middle_line)
-                else:
-                    Clock.schedule_once(self.root.clear_middle_line, 1)
-            
-            self.hint_x = round(tx/self.pad_widget.width, 2)
-            self.hint_y = round(ty/self.pad_widget.height, 2)
+                if self.precision(s_center, p_center):
+                    if self.precision(tx, p_center, (self.width/2)):
+                        tx = (p_center-(self.width/2))
+                        self.root.add_middle_line()
+                        Clock.unschedule(self.root.clear_middle_line)
+                    else:
+                        Clock.schedule_once(self.root.clear_middle_line, 1)
 
-            self.find_equals()
-            self.draw_background()
-            return False
+                self.hint_x = round(tx/self.pad_widget.width, 2)
+                self.hint_y = round(ty/self.pad_widget.height, 2)
+                self.find_equals()
+                self.draw_background_selected()
+                self.last_touch_pos = touch.pos
+                return False
+            elif self.resized:
+                lx, ly = self.last_touch_pos
+                vl = ((tx-lx) + (ty-ly)) / 2
+                self.size = (round(self.width+vl, 2), round(self.height+vl, 2))
+                self.draw_background_resized()
+                self.last_touch_pos = touch.pos
+                self.find_equals()
+                return False
+        self.last_touch_pos = touch.pos
         return super().on_touch_move(touch)
     
     def get_floats_config(self, *args):
@@ -107,10 +143,11 @@ class FloatBehavior(object):
             x = px+(pw*values['hint_x'])
             y = py+(ph*values['hint_y'])
             w, h = values['width'], values['height']
-            center_x, center_y = (x + (w*0.5)), (y + (h*0.5))
+            center_x, center_y = (x+(w*0.5)), (y+(h*0.5))
             yield (name, x, y, w, h, center_x, center_y)
 
-    def precision(self, n1, n2): return (n1 > (n2-dp(5)) and n1 < (n2+dp(5)))
+    def precision(self, n1, n2, marg=dp(5)):
+        return (n1 > (n2-marg) and n1 < (n2+marg))
 
     def find_equals(self, *args):
         sw, sh = self.size
@@ -135,18 +172,25 @@ class FloatBehavior(object):
                 self.root.add_line((y+h), f'{name}_y')
     
     def remove_equals(self, *args):
-        for values in self.get_floats_config():
-            name, x, y, w, h, center_x, center_y = values
-            if x == self.x or center_x == self.center_x or (y+h) == (self.y+self.height):
+        for name, x, y, w, h, center_x, center_y in self.get_floats_config():
+            toph = (self.y+self.height)
+            leftw = (self.x+self.width)
+            
+            if self.precision(x, self.x) or self.precision(center_x, self.center_x):
                 self.root.remove_line(f'{name}_x')
-            if y == self.y or center_y == self.center_y or (x+w) == (self.x+self.width):
+            elif self.precision((x+w), leftw) or self.precision((x+w), self.x):
+                self.root.remove_line(f'{name}_x')
+            
+            if self.precision(y, self.y) or self.precision(center_y, self.center_y):
+                self.root.remove_line(f'{name}_y')
+            elif self.precision((y+h), toph) or self.precision((y+h), self.y):
                 self.root.remove_line(f'{name}_y')
 
-    def update_background(self, *args):
-        self.clear_background(unbind=False)
-        self.draw_background(bind=False)
+    def update_background_selected(self, *args):
+        self.clear_background_selected(unbind=False)
+        self.draw_background_selected(bind=False)
 
-    def draw_background(self, bind=True, *args):
+    def draw_background_selected(self, bind=True, *args):
         add = self.canvas.before.add
 
         img = Image(size_hint=(None, None), size=(dp(35), dp(35)), source=image('move'))
@@ -159,14 +203,50 @@ class FloatBehavior(object):
         add(Line(rectangle=[*self.pos, *self.size], group='selected'))
     
         if bind:
-            self.bind(size=self.update_background)
-            self.bind(pos=self.update_background)
+            self.bind(size=self.update_background_selected)
+            self.bind(pos=self.update_background_selected)
 
-    def clear_background(self, unbind=True, *args):
+    def clear_background_selected(self, unbind=True, *args):
         self.canvas.before.remove_group('selected')
         if unbind:
-            self.unbind(size=self.update_background)
-            self.unbind(pos=self.update_background)
+            self.unbind(size=self.update_background_selected)
+            self.unbind(pos=self.update_background_selected)
+    
+
+    def update_background_resized(self, *args):
+        self.clear_background_resized(unbind=False)
+        self.draw_background_resized(bind=False)
+
+    def draw_background_resized(self, bind=True, *args):
+        add = self.canvas.before.add
+
+        img = Image(size_hint=(None, None), size=(dp(20), dp(20)), source=icon('resize'))
+        add(Color(rgba=[1, 1, 1, 1], group='resized'))
+        add(Rectangle(
+            pos=(self.x, self.y),
+            size=img.size, texture=img.texture, group='resized'))
+        add(Rectangle(
+            pos=(self.x, self.y+self.height-img.height),
+            size=img.size, texture=img.texture, group='resized'))
+        add(Rectangle(
+            pos=(self.x+self.width-img.width, self.y+self.height-img.height),
+            size=img.size, texture=img.texture, group='resized'))
+        add(Rectangle(
+            pos=(self.x+self.width-img.width, self.y),
+            size=img.size, texture=img.texture, group='resized'))
+        
+        add(Color(rgba=[1, 0, 0, 1], group='resized'))
+        add(Line(rectangle=[*self.pos, *self.size], group='resized'))
+    
+        if bind:
+            self.bind(size=self.update_background_resized)
+            self.bind(pos=self.update_background_resized)
+
+    def clear_background_resized(self, unbind=True, *args):
+        self.canvas.before.remove_group('resized')
+        if unbind:
+            self.unbind(size=self.update_background_resized)
+            self.unbind(pos=self.update_background_resized)
 
 class ButtonBehavior(object):
     '''

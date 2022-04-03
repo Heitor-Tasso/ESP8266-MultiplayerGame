@@ -6,6 +6,8 @@ from kivy.properties import ObjectProperty
 from kivy.graphics import Color, Line
 from kivy.uix.screenmanager import Screen
 from kivy.metrics import dp
+from uix.joystick import Joystick
+from uix.icons import FloatButtonIcon, ToggleButtonIcon, AnchorIcon
 
 import socket
 import json
@@ -71,11 +73,11 @@ class GamePad(Screen):
             setattr(wid, 'name', id)
             setattr(wid, 'hint_x', hints['hint_x'])
             setattr(wid, 'hint_y', hints['hint_y'])
-            setattr(wid, 'width', hints['width'])
-            setattr(wid, 'height', hints['height'])
+            setattr(wid, 'width', dp(hints['width']))
+            setattr(wid, 'height', dp(hints['height']))
     
-    def connect_to_esp(self, first=False, *args):
-        if not self.connected or first:
+    def connect_to_esp(self, force=False, *args):
+        if not self.connected and not force:
             return None
         esp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         esp.settimeout(2)
