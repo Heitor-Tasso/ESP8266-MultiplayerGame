@@ -4,6 +4,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.graphics import Color, Line
 from kivy.uix.screenmanager import Screen
+from kivy.animation import Animation
 from kivy.metrics import dp
 from uix.joystick import Joystick
 from uix.icons import (
@@ -230,3 +231,11 @@ class GamePad(Screen):
     def remove_line(self, name, *args):
         content_pad = self.ids.content_pad
         content_pad.canvas.before.remove_group(name)
+
+    def animate_border_top(self, y, duration, wid, state):
+        if wid.last_state == state:
+            return y
+        
+        Animation(y=y, d=duration).start(wid)
+        wid.last_state = state
+        return wid.y

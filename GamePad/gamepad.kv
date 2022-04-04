@@ -1,6 +1,8 @@
 
 #:import image utils.image
 #:import icon utils.icon
+#:import Animation kivy.animation.Animation
+#:import Clock kivy.clock.Clock
 
 <GamePad>:
 	BoxLayout:
@@ -13,23 +15,43 @@
 			Rectangle:
 				size:self.size
 				pos:self.pos
-
-		BoxLayout:
+	
+		FloatLayout:
 			size_hint_y: None
-			height:'70dp'
-			AnchorIcon:
-				ButtonIcon:
-					icon_source:icon('return')
-					on_press: root.exit_game()
-			Widget:
-			AnchorIcon:
-				ButtonIcon:
-					icon_source:icon('reload')
-					on_press: root.reload_json_position('default_position', 'position')
-			AnchorIcon:
-				ToggleButtonIcon:
-					icon_source:icon('correct')
-					on_state: root.move_layout = True if self.state == 'down' else False
+			height:'50dp'
+			BoxLayout:
+				x: root.x
+				y:
+					root.animate_border_top((root.y+root.height-self.height), 0.3, self, 'down') \
+					if btn_lay.state == 'down' else \
+					root.animate_border_top((root.y+root.height), 0.3, self, 'normal')
+				last_state: 'normal'
+				Widget:
+					size_hint_x: None
+					width: '20dp'
+				AnchorIcon:
+					ButtonIcon:
+						icon_source:icon('return')
+						size: ['30dp', '30dp']
+						on_press: root.exit_game()
+				Widget:
+				AnchorIcon:
+					ButtonIcon:
+						icon_source:icon('reload')
+						size: ['30dp', '30dp']
+						on_press: root.reload_json_position('default_position', 'position')
+				AnchorIcon:
+					ToggleButtonIcon:
+						icon_source:icon('correct')
+						size: ['30dp', '30dp']
+						on_state: root.move_layout = True if self.state == 'down' else False
+				Widget:
+					size_hint_x: None
+					width: '50dp'
+			ToggleButtonIcon:
+				state_sources:[icon('up-triangle'), icon('down-triangle')]
+				id: btn_lay
+				pos: [(root.x+root.width-(self.width*1.3)), (root.y+root.height-(self.height*1.3))]
 
 		FloatLayout:
 			id:content_pad
