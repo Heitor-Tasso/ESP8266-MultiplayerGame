@@ -25,6 +25,7 @@ class FloatBehavior(object):
     move_layout = False
     selected = False
     resized = False
+    resize_icon_size = ListProperty([dp(20), dp(20)])
     root = ObjectProperty(None)
     pad_widget = ObjectProperty(None)
     last_touch_pos = ListProperty([0, 0])
@@ -51,6 +52,11 @@ class FloatBehavior(object):
             self.find_equals()
             Clock.schedule_once(self.remove_equals, 2)
 
+    def collid_quad(self, rx, ry, tx, ty, width, height, *args):
+        if tx < rx or tx > (rx+width) or ty < ry or ty > (ry+height):
+            return False
+        return True
+
     def on_touch_down(self, touch):
         self.last_touch_pos = touch.pos
         if self.collide_point(*touch.pos):
@@ -64,11 +70,11 @@ class FloatBehavior(object):
                 else:
                     if self.resized:
                         tx, ty = touch.pos
-                        if not (self.precision(tx, self.x+self.width) or self.precision(tx, self.x)) \
-                            and not self.precision(ty, self.y+self.height):
-                            self.resized = False
-                        elif not (self.precision(tx, self.x+self.width) or self.precision(tx, self.x)) \
-                            and not self.precision(ty, self.y):
+                        w, h = self.resize_icon_size
+                        if not self.collid_quad(self.x, self.y, tx, ty, w, h) and\
+                            not self.collid_quad(self.x, self.y+self.height-h, tx, ty, w, h) and\
+                            not self.collid_quad(self.x+self.width-w, self.y+self.height-h, tx, ty, w, h) and\
+                            not self.collid_quad(self.x+self.width-w, self.y, tx, ty, w, h):
                             self.resized = False
                     
                     if not self.resized:
@@ -220,7 +226,7 @@ class FloatBehavior(object):
     def draw_background_resized(self, bind=True, *args):
         add = self.canvas.before.add
 
-        img = Image(size_hint=(None, None), size=(dp(20), dp(20)), source=icon('resize'))
+        img = Image(size_hint=(None, None), size=self.resize_icon_size, source=icon('resize'))
         add(Color(rgba=[1, 1, 1, 1], group='resized'))
         add(Rectangle(
             pos=(self.x, self.y),

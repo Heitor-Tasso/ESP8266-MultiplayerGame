@@ -184,7 +184,11 @@ class FloatToggleButtonIcon(FloatBehavior, ToggleButtonIcon):
 
 class FloatLifes(FloatBehavior, BoxLayout):
     life_size = ListProperty([dp(25), dp(25)])
-    lifes = 0
+    lifes = 5
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.show_lifes(self.lifes)
 
     def update_back_lifes(self, *args):
         self.clear_lifes(unbind=False)

@@ -68,6 +68,7 @@ Builder.load_string("""
                     multiline:False
                     size_hint_y: None
                     height: self.minimum_height
+                    on_text_validate: root.dispatch('on_enter')
 
         AnchorLayout:
             padding:[dp(-1), dp(1), dp(10), dp(1)]
@@ -151,7 +152,7 @@ class IconInput(AnchorLayout):
     __events__ = ('on_icon_right_press', 'on_icon_right_release', 'on_icon_left_press',
                   'on_icon_left_release', 'on_input_press', 'on_input_release', 
                   'on_input_text', 'on_init_input', 'on_icon_right_pos',
-                  'on_icon_right_pos_release', )
+                  'on_icon_right_pos_release', 'on_enter')
 
     def __init__(self, **kwargs):
         super(IconInput, self).__init__(**kwargs)
@@ -187,6 +188,7 @@ class IconInput(AnchorLayout):
         self.icon_right = self.ids.button_right
         self.icon_left = self.ids.button_left
         self.input = self.ids.input
+
         if not self.icon_left_source and not self.icon_left_state_sources[0] and not self.icon_left_pos_source:
             self.ids.box.remove_widget(self.ids.anchor_left)
             self.icon_left_size = [0, 0]
@@ -255,26 +257,20 @@ class IconInput(AnchorLayout):
                 self.dispatch('on_icon_left_release')
         return super(IconInput, self).on_touch_up(touch)
 
-    def on_icon_right_press(self):
-        pass
-    def on_icon_right_release(self):
-        pass
-    def on_icon_left_press(self):
-        pass
-    def on_icon_left_release(self):
-        pass
-    def on_input_press(self):
-        pass
-    def on_input_release(self):
-        pass
-    def on_init_input(self):
-        pass
-    def on_input_text(self, *args):
-        pass
-    def on_icon_right_pos(self, *args):
-        pass
-    def on_icon_right_pos_release(self, *args):
-        pass
+    def on_icon_right_press(self): pass
+    def on_icon_right_release(self): pass
+    def on_icon_right_pos(self, *args): pass
+    def on_icon_right_pos_release(self, *args): pass
+    
+    def on_icon_left_press(self): pass
+    def on_icon_left_release(self): pass
+
+    def on_input_press(self): pass
+    def on_input_release(self): pass
+
+    def on_init_input(self): pass
+    def on_input_text(self, *args): pass
+    def on_enter(self, *args): pass
 
     def on_pos(self, *args):
         self.pdentro = (self.x-dp(50)+self.radius[-1]/2.5, self.y+dp(40))

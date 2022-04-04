@@ -64,10 +64,13 @@ void send_informations(int index_player, WiFiClient client) {
 }
 
 int collid_player(double pos[], double px, double py) {
-  if (px < pos[0]+player_width && px >= pos[0] && py < pos[1]+player_height && py >= pos[1]) {
-    return 1;
+  if (px > pos[0]+player_width || px+player_width < pos[0]) {
+    return 0;
   }
-  return 0;
+  else if (py+player_height < pos[1] || py > pos[1]+player_height) {
+    return 0;
+  }
+  return 1;
 }
 
 void player_attack(int index_player, String atk, WiFiClient client) {

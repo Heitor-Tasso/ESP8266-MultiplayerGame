@@ -67,6 +67,7 @@ Builder.load_string("""
                         icon_left_size: [dp(30), dp(25)]
                         label_text: 'Username'
                         label_pos_color: green
+                        on_enter: root.start_thread_login()
                         
                     IconInput:
                         radius: [dp(8), dp(8), dp(8), dp(8)]
@@ -128,11 +129,7 @@ class Login(Screen):
     can_call_thread = False
     gamepad = ObjectProperty(None)
 
-    def __init__(self, **kw):
-        super().__init__(**kw)
-        Clock.schedule_once(self.config)
-    
-    def config(self, *args):
+    def on_init_input(self, *args):
         self.manager.current = 'gamepad'
 
     def start_thread_login(self, *args):

@@ -49,6 +49,7 @@ class GamePad(Screen):
         Clock.unschedule(self.recv_update)
         Clock.schedule_interval(self.recv_update, 0.2)
         self.manager.current = 'gamepad'
+        self.ids.lifes.clear_lifes()
         self.ids.lifes.show_lifes(self.lifes)
 
     def exit_game(self, *args):
