@@ -1,8 +1,11 @@
 
 #ifndef PRINT_FUNCS_H
 #define PRINT_FUNCS_H
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+
+#include "./toolsprint.cpp"
 
 void print_client(String msg, WiFiClient client);
 void print_str(String msg, char name_var[]);

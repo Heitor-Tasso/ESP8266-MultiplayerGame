@@ -1,5 +1,5 @@
 
-#include "player.h"
+#include "../player/player.h"
 
 // PLAYER CONFIG
 

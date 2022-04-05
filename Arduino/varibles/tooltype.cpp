@@ -1,5 +1,5 @@
 
-#include "tooltype.h"
+#include "../varibles/tooltype.h"
 
 void split_string(String str, String split_c, String strs[]) {
   /* to split string using any character and add in a new ``String`` array

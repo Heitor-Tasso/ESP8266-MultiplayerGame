@@ -1,8 +1,8 @@
-
+ 
 #include <ESP8266WiFi.h>
-#include "print.h"
-#include "tooltype.h"
-#include "player.h"
+#include "debug/toolsprint.h"
+#include "varibles/tooltype.h"
+#include "player/player.h"
 
 // WIFI CONFIG
 

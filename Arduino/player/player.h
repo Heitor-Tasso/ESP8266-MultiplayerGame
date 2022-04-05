@@ -4,8 +4,9 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include "print.h"
-#include "tooltype.h"
+
+#include "../debug/toolsprint.h"
+#include "../varibles/tooltype.h"
 
 // PLAYER CONFIG
 
@@ -18,6 +19,8 @@ extern String players[num_players];
 extern int players_life[num_players];
 extern double players_pos[num_players][2];
 extern int index_np;
+
+#include "./player.cpp"
 
 int new_player(String player_name, WiFiClient client);
 void remove_player(int index_player);

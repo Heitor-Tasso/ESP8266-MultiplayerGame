@@ -1,7 +1,10 @@
 
 #ifndef TOOLTYPE_FUNCS_H
 #define TOOLTYPE_FUNCS_H
+
 #include <Arduino.h>
+
+#include "./tooltype.cpp"
 
 #define LEN(array) ((sizeof(array))/(sizeof(array[0])))
 
