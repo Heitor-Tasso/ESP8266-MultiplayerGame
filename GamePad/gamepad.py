@@ -1,7 +1,7 @@
 
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, ListProperty
 from kivy.graphics import Color, Line
 from kivy.uix.screenmanager import Screen
 from kivy.animation import Animation
@@ -33,6 +33,7 @@ class GamePad(Screen):
     connected = False
     index_player = '-1'
     lifes = 0
+    pos_player = ListProperty([0, 0])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -129,6 +130,10 @@ class GamePad(Screen):
                 print('Atacou!!')
             elif msg.find('mov') != -1:
                 print('Moveu!!')
+                resp = esp.recv(1024).decode('utf-8').strip("\n").split(":")
+                if len(resp) > 1:
+                    if resp[0] == 'pos':
+                        self.pos_player = list(map(lambda n: dp(float(n)), resp[1].split(',')))
                 Clock.schedule_once(lambda *a: setattr(self, 'can_move', True), 0.05)
             elif msg.find('exit') != -1:
                 self.connected = False

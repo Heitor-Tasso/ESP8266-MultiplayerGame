@@ -17,7 +17,7 @@
 
 extern String players[num_players];
 extern int players_life[num_players];
-extern double players_pos[num_players][2];
+extern float players_pos[num_players][2];
 extern int index_np;
 
 #include "./player.cpp"
@@ -25,9 +25,9 @@ extern int index_np;
 int new_player(String player_name, WiFiClient client);
 void remove_player(int index_player);
 void send_informations(int index_player, WiFiClient client);
-int collid_player(double pos[], double px, double py);
+int collid_player(float pos[], float px, float py);
 void player_attack(int index_player, String atk, WiFiClient client);
-void move_player(double x, double y, double angle, int index_player);
-void rotate_player(double angle, int index_player);
+void move_player(float x, float y, float angle, int index_player, WiFiClient client);
+void rotate_player(float angle, int index_player);
 
 #endif

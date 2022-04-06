@@ -10,5 +10,6 @@
 
 void split_string(String str, String split_c, String strs[]);
 void split_string_to_double(String str, String split_c, double nums[]);
+void split_string_to_float(String str, String split_c, float nums[]);
 
 #endif
