@@ -16,9 +16,29 @@
 				size:self.size
 				pos:self.pos
 			Color:
-				rgba: [1,0, 0, 1]
+				rgba: root.players_color[0]
 			Rectangle:
-				pos: root.pos_player
+				pos: root.pos_players[0]
+				size: [dp(70), dp(150)]
+			Color:
+				rgba: root.players_color[1]
+			Rectangle:
+				pos: root.pos_players[1]
+				size: [dp(70), dp(150)]
+			Color:
+				rgba: root.players_color[2]
+			Rectangle:
+				pos: root.pos_players[2]
+				size: [dp(70), dp(150)]
+			Color:
+				rgba: root.players_color[3]
+			Rectangle:
+				pos: root.pos_players[3]
+				size: [dp(70), dp(150)]
+			Color:
+				rgba: root.players_color[4]
+			Rectangle:
+				pos: root.pos_players[4]
 				size: [dp(70), dp(150)]
 	
 		FloatLayout:

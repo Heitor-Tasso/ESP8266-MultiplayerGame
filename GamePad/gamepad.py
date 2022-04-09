@@ -5,6 +5,7 @@ from kivy.properties import ObjectProperty, ListProperty
 from kivy.graphics import Color, Line
 from kivy.uix.screenmanager import Screen
 from kivy.animation import Animation
+from random import random, randint
 from kivy.metrics import dp
 from uix.joystick import Joystick
 from uix.icons import (
@@ -12,7 +13,7 @@ from uix.icons import (
     ButtonIcon, AnchorIcon, FloatLifes)
 
 import socket
-import json
+import json, time
 
 from utils import get_path, config_path
 from functools import partial
@@ -22,21 +23,32 @@ ip_esp = "192.168.4.2"
 gateway_esp = "192.168.4.1"
 port_esp = 80
 
+HOST = ip_esp
+PORT = randint(1024, 65000)
+
+print("HOST -> ", HOST)
+print("PORT -> ", PORT)
+
 Builder.load_file(get_path('gamepad.kv'))
 
-
 class GamePad(Screen):
-
+    conn = None
     can_move = True
     move_layout = ObjectProperty(False)
     username = ''
     connected = False
-    index_player = '-1'
+    index_player = -1
     lifes = 0
-    pos_player = ListProperty([0, 0])
+    pos_players = ListProperty([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]])
+    players_color = ListProperty([[1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1]])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.conn = socket.socket()
+        self.conn.bind((HOST, PORT))
+        Thread(target=self.start_listen).start()
+        print(self.conn.getsockname())
+
         Clock.schedule_once(self.config)
     
     def config(self, *args):
@@ -45,25 +57,47 @@ class GamePad(Screen):
         self.ids.joystick.on_pos(self.ids.joystick.pos)
         # receber os dados do joystick quando mudar de posição internamente
         self.ids.joystick.bind(pad=self.update_coordinates)
+    
+    def start_listen(self, *args):
+        self.conn.listen()
+        conn, addr = self.conn.accept()
+        data = conn.recv(1024)
+        self.update_from_esp(data)
+        Thread(target=self.start_listen).start()
 
     def start_game(self, *args):
         self.connected = True
-        Clock.unschedule(self.recv_update)
-        Clock.schedule_interval(self.recv_update, 0.2)
         self.manager.current = 'gamepad'
         self.ids.lifes.clear_lifes()
         self.ids.lifes.show_lifes(self.lifes)
+        self.players_color[self.index_player] = [0, 0, 1, 1]
 
     def exit_game(self, *args):
         self.manager.current = 'login'
         if not self.username:
             return None
-        
-        Clock.unschedule(self.recv_update)
+
         self.send_informations_with_thread('exit:save')
 
-    def recv_update(self, *args):
-        self.send_informations_with_thread('recv')
+    def update_from_esp(self, data):
+        resp = data.decode('utf-8').strip("\n").split(":")
+        if len(resp) < 1:
+            return None
+
+        if resp[0] == 'life':
+            if self.lifes != int(resp[1]):
+                self.lifes = int(resp[1])
+                self.ids.lifes.clear_lifes()
+                self.ids.lifes.show_lifes(self.lifes)
+                if self.lifes == 0:
+                    print("MORRI!!")
+                self.connected = True
+                print(resp)
+        if resp[2] == 'pos':
+            dconv = lambda pos: [dp(float(pos[0])), dp(float(pos[1]))]
+            self.pos_players = tuple(map(lambda p: dconv(p.split(',')), resp[3:-1]))
+        else:
+            print(resp)
 
     def get_json(self, name, *args):
         with open(config_path(name), 'r', encoding='utf-8') as file:
@@ -111,37 +145,19 @@ class GamePad(Screen):
 
         try:
             esp.send(f'{self.index_player}:{msg}\n'.encode('utf-8'))
-            if msg.find('recv') != -1:
-                resp = esp.recv(1024).decode('utf-8').strip("\n").split(":")
-                if len(resp) > 1:
-                    if resp[0] == 'life':
-                        if self.lifes != int(resp[1]):
-                            self.lifes = int(resp[1])
-                            self.ids.lifes.clear_lifes()
-                            self.ids.lifes.show_lifes(self.lifes)
-                            if self.lifes == 0:
-                                print("MORRI!!")
-                            self.connected = True
-                            print(resp)
-                    else:
-                        print(resp)
-
-            elif msg.find('atk') != -1:
+            if msg.find('atk') != -1:
                 print('Atacou!!')
             elif msg.find('mov') != -1:
                 print('Moveu!!')
-                resp = esp.recv(1024).decode('utf-8').strip("\n").split(":")
-                if len(resp) > 1:
-                    if resp[0] == 'pos':
-                        self.pos_player = list(map(lambda n: dp(float(n)), resp[1].split(',')))
-                Clock.schedule_once(lambda *a: setattr(self, 'can_move', True), 0.05)
+                Clock.schedule_once(lambda *a: setattr(self, 'can_move', True), 0.01)
             elif msg.find('exit') != -1:
                 self.connected = False
                 print(self.username + " saiu!")
                 self.username = ''
         except (ConnectionAbortedError, socket.timeout, TimeoutError):
             print(f'Tentando mandar: [ {msg} ] novamente!')
-            Clock.schedule_once(partial(self.send_informations, msg))
+            dt = round(min(random(), random()), 2)
+            Clock.schedule_once(partial(self.send_informations, msg), dt)
         self.close_connection_esp(esp)
     
     def send_informations_with_thread(self, msg, *args):

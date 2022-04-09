@@ -7,6 +7,7 @@ from kivy.clock import Clock
 
 import socket
 from threading import Thread
+from gamepad import PORT
 
 Builder.load_string("""
 
@@ -147,13 +148,14 @@ class Login(Screen):
     
     def login_game(self, *args):
         sucessfull = True
-        esp = self.gamepad.connect_to_esp(force=True)
+        gmp = self.gamepad
+        esp = gmp.connect_to_esp(force=True)
         if esp is None:
             self.can_call_thread = False
             self.gamepad.username = ''
             return False
         try:
-            esp.send(f'{self.gamepad.index_player}:np:{self.gamepad.username}\n'.encode('utf-8'))
+            esp.send(f'{gmp.index_player}:np:{gmp.username}:{PORT}\n'.encode('utf-8'))
             print('Iniciou!!')
             Clock.schedule_once(self.gamepad.start_game, 0.5)
         except (ConnectionAbortedError, socket.timeout, TimeoutError):
@@ -170,7 +172,7 @@ class Login(Screen):
                 # values[1::] == INDEX, LIFES
                 username = self.ids.input.ids.input.text
                 self.gamepad.username = username
-                self.gamepad.index_player = values[1]
+                self.gamepad.index_player = int(values[1])
                 self.gamepad.lifes = int(values[2])
         else:
             self.gamepad.username = ''

@@ -185,9 +185,11 @@ class FloatToggleButtonIcon(FloatBehavior, ToggleButtonIcon):
 class FloatLifes(FloatBehavior, BoxLayout):
     life_size = ListProperty([dp(25), dp(25)])
     lifes = 5
+    img = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.img = Image(size_hint=(None, None), size=self.life_size, source=icon('life'))
         self.show_lifes(self.lifes)
 
     def update_back_lifes(self, *args):
@@ -198,14 +200,13 @@ class FloatLifes(FloatBehavior, BoxLayout):
         self.lifes = life
         add = self.canvas.add
         space = dp(5)
-        img = Image(size_hint=(None, None), size=self.life_size, source=icon('life'))
         x = self.x
         y = self.center_y - (self.life_size[0]/2)
         add(Color(rgba=[1, 1, 1, 1], group='lifes'))
         for _ in range(life):
             add(Rectangle(
-                pos=(x, y), size=img.size,
-                texture=img.texture, group='lifes'))
+                pos=(x, y), size=self.img.size,
+                texture=self.img.texture, group='lifes'))
             x += self.life_size[0] + space
 
         if bind:

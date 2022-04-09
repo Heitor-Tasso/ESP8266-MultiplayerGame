@@ -17,6 +17,9 @@ WiFiServer server(80);
 #define user_wifi "BC Telecom anderson"
 #define user_pass "m23m19v16v22h11h26"
 
+int time_update = 300, need_to_update=0;
+unsigned long int last_time_updated=0;
+
 void start_local_wifi() {
   WiFi.begin(user_wifi, user_pass); // WiFi Domestico
   // Wait for connection
@@ -38,7 +41,7 @@ void setup() {
   WiFi.config(staticIP, gateway, subnet);
   server.begin();
   
-  //start_local_wifi(); // Start STATION ACCESS
+  start_local_wifi(); // Start STATION ACCESS
 
   Serial.println("");
   Serial.println(".......................");
@@ -48,30 +51,39 @@ void setup() {
   Serial.println(".......................");
 }
 
+void update_clients() {
+  WiFiClient client;
+  String ip = WiFi.localIP().toString();
+  for (int i=0; i<num_players; i++) {
+    if (players_port[i]) {
+      client.connect(ip, players_port[i]);
+      send_informations(i, client);
+      client.stop();
+    }
+  }
+}
+
 void get_connection(WiFiClient client) {
-  String data[3] = {"", "", ""};
+  String data[5] = {"", "", "", ""};
   // Wait until the client sends some data and split it
   split_string(client.readStringUntil('\n'), ":", data);
   
   int index_player = data[0].toInt();
   String instruction = data[1];
   
-  if (instruction.equals("recv")) {
-    send_informations(index_player, client);
-  }
-  else if (instruction.equals("mov")) {
+  if (instruction.equals("mov")) {
     // cordinates of joystick to move and rotate player
     float coords[3]; // [ x, y, angle ]
     split_string_to_float(data[2], ",", coords);
     
-    move_player(coords[0], coords[1], coords[2], index_player, client);
-    rotate_player(coords[2], index_player);
+    move_player(coords[0], coords[1], index_player);
+    // rotate_player(coords[2], index_player);
   }
   else if (instruction.equals("atk")) {
     player_attack(index_player, data[2], client);
   }
   else if (instruction.equals("np")) {
-    if (!new_player(data[2], client)){ return; }
+    if (!new_player(data[2], data[3], client)){ return; }
     
     // successful added
     print_array_str(players, "players", LEN(players), false);
@@ -87,7 +99,15 @@ void loop() {
   digitalWrite(LED_BUILTIN, HIGH);
 
   WiFiClient client = server.available();
-  if (client) { get_connection(client); }
+  if (client) {
+    get_connection(client);
+    need_to_update = 1;
+  }
   
   digitalWrite(LED_BUILTIN, LOW);
+  if (millis()-last_time_updated >= time_update && need_to_update) {
+    last_time_updated = millis();
+    update_clients();
+    need_to_update = 0;
+  }
 }
