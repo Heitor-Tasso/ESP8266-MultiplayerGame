@@ -150,7 +150,7 @@ class Login(Screen):
         sucessfull = True
         gmp = self.gamepad
         esp = gmp.connect_to_esp(force=True)
-        if esp is None:
+        if esp is None or gmp.conn is None:
             self.can_call_thread = False
             self.gamepad.username = ''
             return False

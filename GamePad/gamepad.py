@@ -1,4 +1,5 @@
 
+from multiprocessing import parent_process
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, ListProperty
@@ -39,18 +40,29 @@ class GamePad(Screen):
     connected = False
     index_player = -1
     lifes = 0
+    name_players = ListProperty(['', '', '', '', ''])
     pos_players = ListProperty([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]])
     players_color = ListProperty([[1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1]])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Clock.schedule_once(self.config)
+        self.start_server()
+    
+    def start_server(self, *args):
         self.conn = socket.socket()
-        self.conn.bind((HOST, PORT))
+        try:
+            self.conn.bind((HOST, PORT))
+        except OSError:
+            self.conn = None
+            Clock.schedule_once(self.start_server, 2)
+            print("Não iniciou o server!!")
+            return False
+        self.conn.settimeout(2.0)
         Thread(target=self.start_listen).start()
         print(self.conn.getsockname())
+        print("Server iniciou.")
 
-        Clock.schedule_once(self.config)
-    
     def config(self, *args):
         self.load_json_pos()
         # para deixar a bolinha do joystick dentro dele (para resolver o bug)
@@ -59,10 +71,16 @@ class GamePad(Screen):
         self.ids.joystick.bind(pad=self.update_coordinates)
     
     def start_listen(self, *args):
-        self.conn.listen()
-        conn, addr = self.conn.accept()
-        data = conn.recv(1024)
-        self.update_from_esp(data)
+        if self.conn is None:
+            print("Parou o server!!")
+            return False
+        try:
+            self.conn.listen()
+            conn, addr = self.conn.accept()
+            data = conn.recv(1024)
+            self.update_from_esp(data)
+        except (socket.timeout, TimeoutError):
+            pass
         Thread(target=self.start_listen).start()
 
     def start_game(self, *args):
@@ -74,6 +92,7 @@ class GamePad(Screen):
 
     def exit_game(self, *args):
         self.manager.current = 'login'
+        self.conn = None
         if not self.username:
             return None
 

@@ -17,7 +17,7 @@ WiFiServer server(80);
 #define user_wifi "BC Telecom anderson"
 #define user_pass "m23m19v16v22h11h26"
 
-int time_update = 300, need_to_update=0;
+int need_to_update=0;
 unsigned long int last_time_updated=0;
 
 void start_local_wifi() {
@@ -56,9 +56,13 @@ void update_clients() {
   String ip = WiFi.localIP().toString();
   for (int i=0; i<num_players; i++) {
     if (players_port[i]) {
-      client.connect(ip, players_port[i]);
-      send_informations(i, client);
-      client.stop();
+      if (client.connect(ip, players_port[i])) {
+        send_informations(i, client);
+        client.stop();
+      }
+      else {
+        remove_player(i)
+      }
     }
   }
 }
@@ -105,8 +109,7 @@ void loop() {
   }
   
   digitalWrite(LED_BUILTIN, LOW);
-  if (millis()-last_time_updated >= time_update && need_to_update) {
-    last_time_updated = millis();
+  if (need_to_update) {
     update_clients();
     need_to_update = 0;
   }
