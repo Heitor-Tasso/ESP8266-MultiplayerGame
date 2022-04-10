@@ -18,12 +18,14 @@
 extern String players[num_players];
 extern int players_life[num_players];
 extern float players_pos[num_players][2];
+extern String players_host[num_players];
 extern int players_port[num_players];
+extern int try_connect_player[num_players];
 extern int index_np;
 
 #include "./player.cpp"
 
-int new_player(String player_name, String player_port, WiFiClient client);
+int new_player(String data[], WiFiClient client);
 void remove_player(int index_player);
 void send_informations(int index_player, WiFiClient client);
 int collid_player(float pos[], float px, float py);

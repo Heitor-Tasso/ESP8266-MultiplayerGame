@@ -6,16 +6,18 @@
 String players[num_players] = {"-1", "-1", "-1", "-1", "-1"};
 int players_life[num_players] = {0, 0, 0, 0, 0};
 float players_pos[num_players][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+String players_host[num_players] = {"", "", "", "", ""};
 int players_port[num_players] = {0, 0, 0, 0, 0};
+int try_connect_player[num_players] = {0, 0, 0, 0, 0};
 int index_np = 0;
 
 #define distance_mov 10
 
-int new_player(String player_name, String player_port, WiFiClient client) {
+int new_player(String data[], WiFiClient client) {
   /* add a new player and comunicate to start the game for him
    
    Args:
-     player_name (String): name of player to add in **players**
+     data (Array String): in it has: 2-player_name, 3-player_host, 4-player_port
      client (WiFiClient): connection to communicate with player
    Return:
      false if no player added or true if added
@@ -30,11 +32,13 @@ int new_player(String player_name, String player_port, WiFiClient client) {
       index_np++;
     }
   }
-  players[index_np] = player_name;
+  players[index_np] = data[2];
   players_life[index_np] = num_lifes;
-  players_port[index_np] = player_port.toInt();
-  Serial.println(String("NEW PLAYER: ")+player_name);
-  Serial.println(String("PORT: ")+player_port);
+  players_host[index_np] = data[3];
+  players_port[index_np] = data[4].toInt();
+  Serial.println(String("NEW PLAYER: ")+data[2]);
+  Serial.println(String("HOST: ")+data[3]);
+  Serial.println(String("PORT: ")+data[4]);
   // to player know what him index
   print_client(String("start:")+String(index_np)+String(":")+String(num_lifes), client);
   return 1;
@@ -51,6 +55,8 @@ void remove_player(int index_player) {
   Serial.println(players[index_player]+String(" acabou de sair."));
   players[index_player] = "-1";
   players_life[index_player] = 0;
+  players_port[index_player] = 0;
+  players_host[index_player] = "";
   players_pos[index_player][0] = 0;
   players_pos[index_player][1] = 0;
   if (index_player < index_np) {

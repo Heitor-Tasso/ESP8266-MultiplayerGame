@@ -17,7 +17,7 @@ WiFiServer server(80);
 #define user_wifi "BC Telecom anderson"
 #define user_pass "m23m19v16v22h11h26"
 
-int need_to_update=0;
+int time_to_update=0, need_to_update=0;
 unsigned long int last_time_updated=0;
 
 void start_local_wifi() {
@@ -41,7 +41,7 @@ void setup() {
   WiFi.config(staticIP, gateway, subnet);
   server.begin();
   
-  start_local_wifi(); // Start STATION ACCESS
+  //start_local_wifi(); // Start STATION ACCESS
 
   Serial.println("");
   Serial.println(".......................");
@@ -53,22 +53,24 @@ void setup() {
 
 void update_clients() {
   WiFiClient client;
-  String ip = WiFi.localIP().toString();
   for (int i=0; i<num_players; i++) {
     if (players_port[i]) {
-      if (client.connect(ip, players_port[i])) {
+      if (client.connect(players_host[i], players_port[i])) {
         send_informations(i, client);
+        try_connect_player[i] = 0;
         client.stop();
       }
       else {
-        remove_player(i)
+        if (try_connect_player[i] == 5) {
+          remove_player(i);
+        }
       }
     }
   }
 }
 
 void get_connection(WiFiClient client) {
-  String data[5] = {"", "", "", ""};
+  String data[5] = {"", "", "", "", ""};
   // Wait until the client sends some data and split it
   split_string(client.readStringUntil('\n'), ":", data);
   
@@ -87,7 +89,7 @@ void get_connection(WiFiClient client) {
     player_attack(index_player, data[2], client);
   }
   else if (instruction.equals("np")) {
-    if (!new_player(data[2], data[3], client)){ return; }
+    if (!new_player(data, client)){ return; }
     
     // successful added
     print_array_str(players, "players", LEN(players), false);
@@ -109,7 +111,8 @@ void loop() {
   }
   
   digitalWrite(LED_BUILTIN, LOW);
-  if (need_to_update) {
+  if (millis()-last_time_updated >= time_to_update && need_to_update) {
+    last_time_updated = millis();
     update_clients();
     need_to_update = 0;
   }

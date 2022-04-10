@@ -24,16 +24,13 @@ ip_esp = "192.168.4.2"
 gateway_esp = "192.168.4.1"
 port_esp = 80
 
-HOST = ip_esp
-PORT = randint(1024, 65000)
-
-print("HOST -> ", HOST)
-print("PORT -> ", PORT)
-
 Builder.load_file(get_path('gamepad.kv'))
 
 class GamePad(Screen):
     conn = None
+    HOST = ''
+    PORT = randint(100, 65000)
+
     can_move = True
     move_layout = ObjectProperty(False)
     username = ''
@@ -46,17 +43,25 @@ class GamePad(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        Clock.schedule_once(self.config)
         self.start_server()
+        Clock.schedule_once(self.config)
     
     def start_server(self, *args):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        self.HOST = s.getsockname()[0]
+        print("HOST -> ", self.HOST)
+        print("PORT -> ", self.PORT)
+
         self.conn = socket.socket()
         try:
-            self.conn.bind((HOST, PORT))
+            self.conn.bind((self.HOST, self.PORT))
         except OSError:
             self.conn = None
             Clock.schedule_once(self.start_server, 2)
             print("Não iniciou o server!!")
+            self.PORT = randint(100, 65000)
+            print("NEW PORT -> ", self.PORT)
             return False
         self.conn.settimeout(2.0)
         Thread(target=self.start_listen).start()
