@@ -39,11 +39,13 @@ class GamePad(Screen):
     lifes = 0
     name_players = ListProperty(['', '', '', '', ''])
     pos_players = ListProperty([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]])
-    players_color = ListProperty([[1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 0, 0, 1]])
+    players_color = ListProperty([
+        [1, 0, 0, 1], [1, 0, 0, 1],
+        [1, 0, 0, 1], [1, 0, 0, 1],
+        [1, 0, 0, 1]])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.start_server()
         Clock.schedule_once(self.config)
     
     def start_server(self, *args):

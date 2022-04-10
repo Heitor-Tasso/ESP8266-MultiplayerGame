@@ -4,16 +4,16 @@
 // PLAYER CONFIG
 
 String players[num_players] = {"-1", "-1", "-1", "-1", "-1"};
-int players_life[num_players] = {0, 0, 0, 0, 0};
+unsigned int players_life[num_players] = {0, 0, 0, 0, 0};
 float players_pos[num_players][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
 String players_host[num_players] = {"", "", "", "", ""};
-int players_port[num_players] = {0, 0, 0, 0, 0};
-int try_connect_player[num_players] = {0, 0, 0, 0, 0};
-int index_np = 0;
+unsigned int players_port[num_players] = {0, 0, 0, 0, 0};
+unsigned int try_connect_player[num_players] = {0, 0, 0, 0, 0};
+unsigned int index_np = 0;
 
 #define distance_mov 10
 
-int new_player(String data[], WiFiClient client) {
+bool new_player(String data[], WiFiClient client) {
   /* add a new player and comunicate to start the game for him
    
    Args:
@@ -27,7 +27,7 @@ int new_player(String data[], WiFiClient client) {
       // player can't be added
       print_client("erro:Quantidade máxima de players atingida!", client);
       client.stop();
-      return 0;
+      return false;
     } else {
       index_np++;
     }
@@ -41,7 +41,7 @@ int new_player(String data[], WiFiClient client) {
   Serial.println(String("PORT: ")+data[4]);
   // to player know what him index
   print_client(String("start:")+String(index_np)+String(":")+String(num_lifes), client);
-  return 1;
+  return true;
 }
 
 void remove_player(int index_player) {
@@ -65,43 +65,35 @@ void remove_player(int index_player) {
 }
 
 void send_informations(int index_player, WiFiClient client) {
-  String life_msg = String("life:")+String(players_life[index_player])+String(":");
-
-  String pos_msg = String("pos:");
+  String msg = String("life:")+String(players_life[index_player])+String(":pos:");
   for (int i=0; i < num_players; i++) {
-    pos_msg += String(players_pos[i][0])+String(",")+String(players_pos[i][1])+String(":");
+    msg += String(players_pos[i][0])+String(",")+String(players_pos[i][1])+String(":");
   }
-
-  print_client(life_msg+pos_msg, client);
+  print_client(msg, client);
 
   if (players_life[index_player] == 0) {
     players_life[index_player] = num_lifes;
-    Serial.print(players[index_player]);
-    Serial.println(" morreu!!");
+    Serial.println(players[index_player]+String(" morreu!!"));
   }
 }
 
-int collid_player(float pos[], float px, float py) {
-  if (px+player_width < pos[0] || px > (pos[0]+player_width)) {
-    return 0;
+bool collid_player(float pos[], float px, float py) {
+  if (  (px+player_width < pos[0] || px > (pos[0]+player_width)) \
+      || (py+player_height < pos[1] || py > (pos[1]+player_height)) ) {
+    return false;
   }
-  else if (py+player_height < pos[1] || py > (pos[1]+player_height)) {
-    return 0;
-  }
-  return 1;
+  return true;
 }
 
 void player_attack(int index_player, String atk, WiFiClient client) {
-  String player = players[index_player];
   float px = players_pos[index_player][0];
   float py = players_pos[index_player][1];
   Serial.println(String("tipo do ataque: ")+atk);
-  
-  for (int i=0; i<num_players; i++) {
+  for (unsigned int i=0; i<num_players; i++) {
     if (index_player != i && !players[i].equals("-1")) {
       if (collid_player(players_pos[i], px, py) && players_life[i] > 0) {
-        Serial.print(player+String(" colidiu com o ")+players[i]+String(", "));
-        players_life[i] --;
+        Serial.print(players[index_player]+String(" colidiu com o ")+players[i]+String(", "));
+        players_life[i]--;
         Serial.println(String(players_life[i])+String(" é a nova vida dele"));
       }
     }
@@ -109,35 +101,26 @@ void player_attack(int index_player, String atk, WiFiClient client) {
 }
 
 void move_player(float x, float y, int index_player) {
-  Serial.print(players[index_player] + String(" "));
-  if (x > 0.4) {
-    Serial.print("movendo para direita");
+  if (x > 0.4) { // movendo para direita
     players_pos[index_player][0] += distance_mov;
   }
-  else if (x < -0.4) {
-    Serial.print("movendo para esquerda");
+  else if (x < -0.4) { // movendo para esquerda
     players_pos[index_player][0] -= distance_mov;
   }
-
-  if (y > 0.4) {
-    Serial.print("movendo para cima");
+  if (y > 0.4) { // movendo para cima
     players_pos[index_player][1] += distance_mov;
   }
-  else if (y < -0.4) {
-    Serial.print("movendo para baixo");
+  else if (y < -0.4) { // movendo para baixo"
     players_pos[index_player][1] -= distance_mov;
   }
-  Serial.print(" na posição [");
-  Serial.print(players_pos[index_player][0]);
-  Serial.print(", ");
-  Serial.print(players_pos[index_player][1]);
-  Serial.println("]");
+  Serial.print(players[index_player]+String(" na posição ["));
+  Serial.print(String(players_pos[index_player][0])+String(", "));
+  Serial.println(String(players_pos[index_player][1])+String("]"));
 }
 
 void rotate_player(float angle, int index_player) {
-  Serial.print(players[index_player] + String(" no angulo "));
-  Serial.print(angle);
-  Serial.print(", ");
+  Serial.print(players[index_player]+String(" no angulo "));
+  Serial.print(String(angle)+String(", "));
   if (angle == 0) {
     Serial.println("movendo para direita angle");
   }
