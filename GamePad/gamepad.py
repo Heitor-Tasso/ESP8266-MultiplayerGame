@@ -1,5 +1,6 @@
 
 from multiprocessing import parent_process
+from turtle import Turtle
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, ListProperty
@@ -190,13 +191,27 @@ class GamePad(Screen):
         th = Thread(target=self.send_informations, args=(msg, ))
         th.start()
 
-    def update_coordinates(self, joystick, pad):
+    def verify(self, *args):
+        Clock.schedule_interval(self.update_coordinates, 0.1)
+
+    def update_coordinates(self, joystick, pad=(0, 0)):
         if not self.can_move:
             return None
+        Clock.unschedule(self.verify)
+        if isinstance(joystick, (int, float)):
+            joystick = self.ids.joystick
+            pad = joystick.pad
+        else:
+            Clock.schedule_once(self.verify, 0.3)
+        
         x, y = tuple(map(lambda n: round(n, 2), pad))
+        print(f"VALUE: {x}, {y}")
         angle = round(joystick.angle)
         self.send_informations_with_thread(f'mov:{x},{y},{angle}')
         self.can_move = False
+
+        if x < 0.1 and x > -0.1 and y < 0.1 and y > -0.1:
+            Clock.unschedule(self.update_coordinates)
 
     def do_ataque(self, *args):
         self.send_informations_with_thread('atk:espd')

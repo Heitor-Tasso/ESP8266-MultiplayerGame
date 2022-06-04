@@ -314,6 +314,10 @@ class Joystick(FloatBehavior, Widget):
             return self.move_pad(touch, from_touch_down=True)
         return super(Joystick, self).on_touch_down(touch)
 
+    def verify_touch_move(self, *args):
+        if self._touch_is_active(self.last_touch):
+            Clock.schedule_interval(self.on_touch_move, 0.3)
+
     def on_touch_move(self, touch):
         if self.root.move_layout:
             return super(Joystick, self).on_touch_move(touch)
