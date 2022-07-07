@@ -11,7 +11,7 @@ WiFiServer server(80);
 
 // ------------------ esp8266 wifi ------------------
 #define ssid "ESP8266 - Heitor" // esp8266 wifi
-#define password "12345678"
+#define password "SENHA"
 
 // ------------------- local wifi -------------------
 #define user_wifi "BC Telecom anderson"
